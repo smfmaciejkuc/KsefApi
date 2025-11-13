@@ -27,7 +27,7 @@
         </DaneIdentyfikacyjne>
         <Adres>
             <KodKraju>PL</KodKraju>
-            <AdresL1>ul. G³ówna 25</AdresL1>
+            <AdresL1>ul. GÅ‚Ã³wna 25</AdresL1>
             <AdresL2>02-123 Warszawa</AdresL2>
         </Adres>
         <JST>2</JST>
@@ -41,7 +41,7 @@
         <P_2>FVK/2025/001</P_2>
         <P_6>2025-01-14</P_6>
         
-        <!-- Korekta - ró¿nica po korekcie -->
+        <!-- Korekta - rï¿½nica po korekcie -->
         <P_13_1>-200.00</P_13_1>
         <P_14_1>-46.00</P_14_1>
         
@@ -66,7 +66,7 @@
         
         <RodzajFaktury>KOR</RodzajFaktury>
         
-        <PrzyczynaKorekty>B³êdna iloœæ w pozycji 1</PrzyczynaKorekty>
+        <PrzyczynaKorekty>Bï¿½ï¿½dna iloï¿½ï¿½ w pozycji 1</PrzyczynaKorekty>
         <TypKorekty>2</TypKorekty>
         
         <DaneFaKorygowanej>
@@ -77,7 +77,7 @@
         
         <FaWiersz>
             <NrWierszaFa>1</NrWierszaFa>
-            <P_7>Us³ugi informatyczne - korekta iloœci</P_7>
+            <P_7>Usï¿½ugi informatyczne - korekta iloï¿½ci</P_7>
             <Indeks>IT001</Indeks>
             <PKWiU>62.01.1</PKWiU>
             <P_8A>szt</P_8A>

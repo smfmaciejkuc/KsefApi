@@ -27,7 +27,7 @@
         </DaneIdentyfikacyjne>
         <Adres>
             <KodKraju>PL</KodKraju>
-            <AdresL1>ul. G³ówna 25</AdresL1>
+            <AdresL1>ul. GÅ‚Ã³wna 25</AdresL1>
             <AdresL2>02-123 Warszawa</AdresL2>
         </Adres>
         <JST>2</JST>
@@ -71,7 +71,7 @@
             
             <ZamowienieWiersz>
                 <NrWierszaZam>1</NrWierszaZam>
-                <P_7Z>System informatyczny - wdro¿enie</P_7Z>
+                <P_7Z>System informatyczny - wdroï¿½enie</P_7Z>
                 <IndeksZ>SYS001</IndeksZ>
                 <PKWiUZ>62.01.1</PKWiUZ>
                 <P_8AZ>projekt</P_8AZ>
