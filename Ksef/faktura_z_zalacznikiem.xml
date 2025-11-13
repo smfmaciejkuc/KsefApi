@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>3</WariantFormularza>
+        <DataWytworzeniaFa>2025-01-15T14:00:00Z</DataWytworzeniaFa>
+        <SystemInfo>System Fakturowania XYZ 3.0</SystemInfo>
+    </Naglowek>
+    
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1111111111</NIP>
+            <Nazwa>Firma Budowlana DELTA Sp. z o.o.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Budowlana 50</AdresL1>
+            <AdresL2>03-456 Warszawa</AdresL2>
+        </Adres>
+        <DaneKontaktowe>
+            <Email>kontakt@delta-budowa.pl</Email>
+            <Telefon>+48222333444</Telefon>
+        </DaneKontaktowe>
+    </Podmiot1>
+    
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>2222222222</NIP>
+            <Nazwa>Deweloper GAMMA S.A.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Inwestycyjna 100</AdresL1>
+            <AdresL2>02-789 Warszawa</AdresL2>
+        </Adres>
+        <JST>2</JST>
+        <GV>2</GV>
+    </Podmiot2>
+    
+    <Fa>
+        <KodWaluty>PLN</KodWaluty>
+        <P_1>2025-01-15</P_1>
+        <P_1M>Warszawa</P_1M>
+        <P_2>FV/2025/100</P_2>
+        <P_6>2025-01-14</P_6>
+        
+        <!-- Sprzedaż z 23% VAT -->
+        <P_13_1>500000.00</P_13_1>
+        <P_14_1>115000.00</P_14_1>
+        
+        <P_15>615000.00</P_15>
+        
+        <Adnotacje>
+            <P_16>2</P_16>
+            <P_17>2</P_17>
+            <P_18>2</P_18>
+            <P_18A>2</P_18A>
+            <Zwolnienie>
+                <P_19N>1</P_19N>
+            </Zwolnienie>
+            <NoweSrodkiTransportu>
+                <P_22N>1</P_22N>
+            </NoweSrodkiTransportu>
+            <P_23>2</P_23>
+            <PMarzy>
+                <P_PMarzyN>1</P_PMarzyN>
+            </PMarzy>
+        </Adnotacje>
+        
+        <RodzajFaktury>VAT</RodzajFaktury>
+        
+        <FaWiersz>
+            <NrWierszaFa>1</NrWierszaFa>
+            <P_7>Roboty budowlane - budowa osiedla mieszkaniowego</P_7>
+            <PKWiU>41.20.11</PKWiU>
+            <P_8A>m2</P_8A>
+            <P_8B>1000.00</P_8B>
+            <P_9A>500.00</P_9A>
+            <P_11>500000.00</P_11>
+            <P_12>23</P_12>
+            <GTU>GTU_06</GTU>
+        </FaWiersz>
+        
+        <Platnosc>
+            <TerminPlatnosci>
+                <Termin>2025-02-14</Termin>
+            </TerminPlatnosci>
+            <FormaPlatnosci>6</FormaPlatnosci>
+            <RachunekBankowy>
+                <NrRB>98765432109876543210987654</NrRB>
+                <NazwaBanku>Bank Budowlany S.A.</NazwaBanku>
+            </RachunekBankowy>
+        </Platnosc>
+        
+        <WarunkiTransakcji>
+            <Umowy>
+                <DataUmowy>2024-12-01</DataUmowy>
+                <NrUmowy>UB/2024/001</NrUmowy>
+            </Umowy>
+        </WarunkiTransakcji>
+    </Fa>
+    
+    <Stopka>
+        <Informacje>
+            <StopkaFaktury>Szczegółowe zestawienie materiałów i robót w załączniku</StopkaFaktury>
+        </Informacje>
+        <Rejestry>
+            <PelnaNazwa>Firma Budowlana DELTA Spółka z ograniczoną odpowiedzialnością</PelnaNazwa>
+            <KRS>0000987654</KRS>
+            <REGON>987654321</REGON>
+        </Rejestry>
+    </Stopka>
+    
+    <!-- ZAŁĄCZNIK DO FAKTURY -->
+    <Zalacznik>
+        <BlokDanych>
+            <ZNaglowek>Zestawienie materiałów budowlanych</ZNaglowek>
+            
+            <MetaDane>
+                <ZKlucz>Typ załącznika</ZKlucz>
+                <ZWartosc>Szczegółowe zestawienie materiałów</ZWartosc>
+            </MetaDane>
+            
+            <MetaDane>
+                <ZKlucz>Data sporządzenia</ZKlucz>
+                <ZWartosc>2025-01-15</ZWartosc>
+            </MetaDane>
+            
+            <MetaDane>
+                <ZKlucz>Obiekt</ZKlucz>
+                <ZWartosc>Osiedle Słoneczne - budynki A, B, C</ZWartosc>
+            </MetaDane>
+            
+            <Tekst>
+                <Akapit>Niniejszy załącznik zawiera szczegółowe zestawienie materiałów budowlanych użytych przy realizacji projektu budowy osiedla mieszkaniowego.</Akapit>
+                <Akapit>Wszystkie materiały spełniają wymagane normy jakości i posiadają odpowiednie certyfikaty.</Akapit>
+                <Akapit>Roboty wykonano zgodnie z projektem budowlanym i obowiązującymi przepisami.</Akapit>
+            </Tekst>
+            
+            <Tabela>
+                <TMetaDane>
+                    <TKlucz>Kategoria</TKlucz>
+                    <TWartosc>Materiały konstrukcyjne</TWartosc>
+                </TMetaDane>
+                
+                <Opis>Zestawienie głównych materiałów konstrukcyjnych</Opis>
+                
+                <TNaglowek>
+                    <Kol Typ="int">
+                        <NKom>Lp.</NKom>
+                    </Kol>
+                    <Kol Typ="txt">
+                        <NKom>Nazwa materiału</NKom>
+                    </Kol>
+                    <Kol Typ="txt">
+                        <NKom>Jednostka</NKom>
+                    </Kol>
+                    <Kol Typ="dec">
+                        <NKom>Ilość</NKom>
+                    </Kol>
+                    <Kol Typ="dec">
+                        <NKom>Cena jedn. netto</NKom>
+                    </Kol>
+                    <Kol Typ="dec">
+                        <NKom>Wartość netto</NKom>
+                    </Kol>
+                </TNaglowek>
+                
+                <Wiersz>
+                    <WKom>1</WKom>
+                    <WKom>Cement Portland CEM I 42,5R</WKom>
+                    <WKom>t</WKom>
+                    <WKom>50.00</WKom>
+                    <WKom>420.00</WKom>
+                    <WKom>21000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>2</WKom>
+                    <WKom>Stal zbrojeniowa RB500W</WKom>
+                    <WKom>t</WKom>
+                    <WKom>25.00</WKom>
+                    <WKom>3200.00</WKom>
+                    <WKom>80000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>3</WKom>
+                    <WKom>Kruszywo betonowe 0-31,5</WKom>
+                    <WKom>m3</WKom>
+                    <WKom>200.00</WKom>
+                    <WKom>45.00</WKom>
+                    <WKom>9000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>4</WKom>
+                    <WKom>Pustaki ceramiczne 24cm</WKom>
+                    <WKom>m2</WKom>
+                    <WKom>800.00</WKom>
+                    <WKom>25.00</WKom>
+                    <WKom>20000.00</WKom>
+                </Wiersz>
+                
+                <Suma>
+                    <SKom></SKom>
+                    <SKom>RAZEM MATERIAŁY KONSTRUKCYJNE:</SKom>
+                    <SKom></SKom>
+                    <SKom></SKom>
+                    <SKom></SKom>
+                    <SKom>130000.00</SKom>
+                </Suma>
+            </Tabela>
+        </BlokDanych>
+        
+        <BlokDanych>
+            <ZNaglowek>Zestawienie robót budowlanych</ZNaglowek>
+            
+            <MetaDane>
+                <ZKlucz>Typ robót</ZKlucz>
+                <ZWartosc>Roboty wykończeniowe</ZWartosc>
+            </MetaDane>
+            
+            <Tabela>
+                <TMetaDane>
+                    <TKlucz>Etap</TKlucz>
+                    <TWartosc>Roboty wykończeniowe</TWartosc>
+                </TMetaDane>
+                
+                <Opis>Zestawienie robót wykończeniowych</Opis>
+                
+                <TNaglowek>
+                    <Kol Typ="int">
+                        <NKom>Lp.</NKom>
+                    </Kol>
+                    <Kol Typ="txt">
+                        <NKom>Rodzaj robót</NKom>
+                    </Kol>
+                    <Kol Typ="txt">
+                        <NKom>Jednostka</NKom>
+                    </Kol>
+                    <Kol Typ="dec">
+                        <NKom>Ilość</NKom>
+                    </Kol>
+                    <Kol Typ="dec">
+                        <NKom>Cena jedn. netto</NKom>
+                    </Kol>
+                    <Kol Typ="dec">
+                        <NKom>Wartość netto</NKom>
+                    </Kol>
+                </TNaglowek>
+                
+                <Wiersz>
+                    <WKom>1</WKom>
+                    <WKom>Tynkowanie ścian wewnętrznych</WKom>
+                    <WKom>m2</WKom>
+                    <WKom>2000.00</WKom>
+                    <WKom>35.00</WKom>
+                    <WKom>70000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>2</WKom>
+                    <WKom>Malowanie ścian</WKom>
+                    <WKom>m2</WKom>
+                    <WKom>2000.00</WKom>
+                    <WKom>15.00</WKom>
+                    <WKom>30000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>3</WKom>
+                    <WKom>Układanie płytek ceramicznych</WKom>
+                    <WKom>m2</WKom>
+                    <WKom>500.00</WKom>
+                    <WKom>80.00</WKom>
+                    <WKom>40000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>4</WKom>
+                    <WKom>Montaż okien PCV</WKom>
+                    <WKom>m2</WKom>
+                    <WKom>400.00</WKom>
+                    <WKom>320.00</WKom>
+                    <WKom>128000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>5</WKom>
+                    <WKom>Montaż instalacji elektrycznej</WKom>
+                    <WKom>pkt</WKom>
+                    <WKom>150.00</WKom>
+                    <WKom>180.00</WKom>
+                    <WKom>27000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>6</WKom>
+                    <WKom>Montaż instalacji wod-kan</WKom>
+                    <WKom>pkt</WKom>
+                    <WKom>80.00</WKom>
+                    <WKom>250.00</WKom>
+                    <WKom>20000.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>7</WKom>
+                    <WKom>Montaż instalacji c.o.</WKom>
+                    <WKom>pkt</WKom>
+                    <WKom>60.00</WKom>
+                    <WKom>380.00</WKom>
+                    <WKom>22800.00</WKom>
+                </Wiersz>
+                
+                <Wiersz>
+                    <WKom>8</WKom>
+                    <WKom>Roboty pozostałe</WKom>
+                    <WKom>rg</WKom>
+                    <WKom>1.00</WKom>
+                    <WKom>32200.00</WKom>
+                    <WKom>32200.00</WKom>
+                </Wiersz>
+                
+                <Suma>
+                    <SKom></SKom>
+                    <SKom>RAZEM ROBOTY WYKOŃCZENIOWE:</SKom>
+                    <SKom></SKom>
+                    <SKom></SKom>
+                    <SKom></SKom>
+                    <SKom>370000.00</SKom>
+                </Suma>
+            </Tabela>
+        </BlokDanych>
+        
+        <BlokDanych>
+            <ZNaglowek>Podsumowanie końcowe</ZNaglowek>
+            
+            <MetaDane>
+                <ZKlucz>Status realizacji</ZKlucz>
+                <ZWartosc>Etap zakończony</ZWartosc>
+            </MetaDane>
+            
+            <MetaDane>
+                <ZKlucz>Data zakończenia</ZKlucz>
+                <ZWartosc>2025-01-14</ZWartosc>
+            </MetaDane>
+            
+            <MetaDane>
+                <ZKlucz>Odpowiedzialny</ZKlucz>
+                <ZWartosc>mgr inż. Jan Kowalski</ZWartosc>
+            </MetaDane>
+            
+            <Tekst>
+                <Akapit>Podsumowanie wartości robót i materiałów:</Akapit>
+                <Akapit>- Materiały konstrukcyjne: 130.000,00 PLN netto</Akapit>
+                <Akapit>- Roboty wykończeniowe: 370.000,00 PLN netto</Akapit>
+                <Akapit>- RAZEM: 500.000,00 PLN netto</Akapit>
+                <Akapit>Wszystkie roboty wykonano zgodnie z projektem i obowiązującymi normami.</Akapit>
+            </Tekst>
+        </BlokDanych>
+    </Zalacznik>
+</Faktura>

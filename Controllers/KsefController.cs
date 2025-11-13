@@ -1,0 +1,667 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Xml;
+using System.Xml.Xsl;
+using System.Xml.Schema;
+using System.Net;
+
+namespace KsefApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class KsefController : ControllerBase
+    {
+        private readonly IWebHostEnvironment _env;
+
+        public KsefController(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+
+        [HttpPost("validate")]
+        public async Task<IActionResult> ValidateXml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var schemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "schemat.xsd");
+            var structureSchemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "StrukturyDanych_v10-0E.xsd");
+            var elementarySchemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "ElementarneTypyDanych_v10-0E.xsd");
+            
+            var errors = new List<string>();
+            var warnings = new List<string>();
+
+            // Check for required schema files
+            if (!System.IO.File.Exists(schemaPath))
+            {
+                errors.Add($"Nie znaleziono g³ównego pliku schematu: schemat.xsd");
+            }
+
+            if (!System.IO.File.Exists(structureSchemaPath))
+            {
+                warnings.Add("Brak pliku schematu StrukturyDanych_v10-0E.xsd. Walidacja mo¿e byæ niepe³na.");
+            }
+
+            if (!System.IO.File.Exists(elementarySchemaPath))
+            {
+                warnings.Add("Brak pliku schematu ElementarneTypyDanych_v10-0E.xsd. Walidacja mo¿e byæ niepe³na.");
+            }
+
+            try
+            {
+                var settings = new XmlReaderSettings();
+                
+                if (System.IO.File.Exists(schemaPath))
+                {
+                    // First, manually load the base schemas in correct order to resolve dependencies
+                    var schemaSet = new XmlSchemaSet();
+                    var resolver = new LocalResourceResolver(_env.ContentRootPath);
+                    schemaSet.XmlResolver = resolver;
+
+                    // Load elementary types first (base types)
+                    if (System.IO.File.Exists(elementarySchemaPath))
+                    {
+                        schemaSet.Add("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", elementarySchemaPath);
+                    }
+
+                    // Then load structure data (depends on elementary types)
+                    if (System.IO.File.Exists(structureSchemaPath))
+                    {
+                        schemaSet.Add("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", structureSchemaPath);
+                    }
+
+                    // Finally load the main schema (depends on both)
+                    schemaSet.Add("http://crd.gov.pl/wzor/2025/06/25/13775/", schemaPath);
+
+                    // Compile the schema set
+                    schemaSet.Compile();
+
+                    // Configure validation settings
+                    settings.Schemas = schemaSet;
+                    settings.ValidationType = ValidationType.Schema;
+                    settings.ValidationFlags = XmlSchemaValidationFlags.ProcessInlineSchema |
+                                             XmlSchemaValidationFlags.ProcessSchemaLocation |
+                                             XmlSchemaValidationFlags.ReportValidationWarnings;
+
+                    settings.ValidationEventHandler += (s, e) =>
+                    {
+                        var message = $"{e.Message}";
+                        if (e.Exception?.LineNumber > 0)
+                        {
+                            message += $" (linia: {e.Exception.LineNumber})";
+                        }
+
+                        if (e.Severity == XmlSeverityType.Error)
+                            errors.Add($"B³¹d walidacji: {message}");
+                        else
+                            warnings.Add($"Ostrze¿enie walidacji: {message}");
+                    };
+
+                    settings.XmlResolver = resolver;
+                }
+                else
+                {
+                    return BadRequest(new { valid = false, errors, warnings, message = "Brak g³ównego pliku schematu" });
+                }
+
+                // Validate XML against schema
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent), settings);
+                
+                // Read through the entire document to trigger validation
+                while (xmlReader.Read()) { }
+            }
+            catch (XmlSchemaException ex)
+            {
+                errors.Add($"B³¹d schematu: {ex.Message}" + (ex.LineNumber > 0 ? $" (linia: {ex.LineNumber})" : ""));
+            }
+            catch (XmlException ex)
+            {
+                errors.Add($"B³¹d XML: {ex.Message}" + (ex.LineNumber > 0 ? $" (linia: {ex.LineNumber})" : ""));
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"B³¹d ogólny: {ex.Message}");
+            }
+
+            var result = new 
+            { 
+                valid = !errors.Any(), 
+                errors,
+                warnings,
+                message = !errors.Any() ? "XML jest poprawny zgodnie ze schematem KSEF" : "XML zawiera b³êdy walidacji"
+            };
+
+            if (errors.Any())
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("html")]
+        public async Task<IActionResult> TransformToHtml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+            var externalXslPath = Path.Combine(_env.ContentRootPath, "Ksef", "WspolneSzablonyWizualizacji_v12-0E.xsl");
+
+            try
+            {
+                var transform = new XslCompiledTransform();
+                
+                // Set up a custom resolver that can handle local files and missing external resources
+                var resolver = new LocalResourceResolver(_env.ContentRootPath);
+                
+                // Enable document function since the XSL template uses it for accessing schema files
+                var settings = new XsltSettings(enableDocumentFunction: true, enableScript: false);
+                
+                // Add warning if external XSL template is missing
+                if (!System.IO.File.Exists(externalXslPath))
+                {
+                    // We'll try to load without the external template, but this might limit styling
+                    // Let's first try to create a minimal version of the missing template
+                    await EnsureMinimalTemplateExists(externalXslPath);
+                }
+
+                transform.Load(xslPath, settings, resolver);
+
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+                using var sw = new StringWriter();
+                using var xmlWriter = XmlWriter.Create(sw, transform.OutputSettings);
+                
+                // Use the transform method that accepts resolver as parameter  
+                transform.Transform(xmlReader, null, xmlWriter, resolver);
+
+                return Content(sw.ToString(), "text/html");
+            }
+            catch (XsltCompileException ex)
+            {
+                return BadRequest(new { 
+                    error = "B³¹d kompilacji szablonu XSL", 
+                    details = ex.Message,
+                    suggestion = "SprawdŸ czy plik styl.xsl jest poprawny i czy istniej¹ wymagane zale¿noœci."
+                });
+            }
+            catch (XsltException ex)
+            {
+                var innerExceptionDetails = "";
+                if (ex.InnerException != null)
+                {
+                    innerExceptionDetails = $" Inner Exception: {ex.InnerException.Message}";
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        innerExceptionDetails += $" ({ex.InnerException.InnerException.Message})";
+                    }
+                }
+
+                var errorResponse = new
+                {
+                    error = "B³¹d transformacji XSLT",
+                    details = ex.Message + innerExceptionDetails,
+                    lineNumber = ex.LineNumber > 0 ? (int?)ex.LineNumber : null,
+                    suggestion = innerExceptionDetails.Contains("KodyKrajow", StringComparison.OrdinalIgnoreCase) ? "Brak pliku schematów krajów. Uruchom download-schema.bat aby pobraæ brakuj¹ce pliki." : null
+                };
+
+                return BadRequest(errorResponse);
+            }
+            catch (Exception ex)
+            {
+                var innerExceptionDetails = "";
+                if (ex.InnerException != null)
+                {
+                    innerExceptionDetails = $" Inner Exception: {ex.InnerException.Message}";
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        innerExceptionDetails += $" ({ex.InnerException.InnerException.Message})";
+                    }
+                }
+
+                return BadRequest(new { 
+                    error = "B³¹d transformacji XML do HTML", 
+                    details = ex.Message + innerExceptionDetails
+                });
+            }
+        }
+
+        // Helper method for transforming XML content to HTML
+        private async Task<IActionResult> TransformXmlToHtml(string xmlContent)
+        {
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+            var externalXslPath = Path.Combine(_env.ContentRootPath, "Ksef", "WspolneSzablonyWizualizacji_v12-0E.xsl");
+
+            try
+            {
+                var transform = new XslCompiledTransform();
+                var resolver = new LocalResourceResolver(_env.ContentRootPath);
+                
+                // Enable document function since the XSL template uses it for accessing schema files
+                var settings = new XsltSettings(enableDocumentFunction: true, enableScript: false);
+
+                if (!System.IO.File.Exists(externalXslPath))
+                {
+                    await EnsureMinimalTemplateExists(externalXslPath);
+                }
+
+                transform.Load(xslPath, settings, resolver);
+
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+                using var sw = new StringWriter();
+                using var xmlWriter = XmlWriter.Create(sw, transform.OutputSettings);
+                
+                // Use the transform method that accepts resolver as parameter  
+                transform.Transform(xmlReader, null, xmlWriter, resolver);
+
+                return Content(sw.ToString(), "text/html");
+            }
+            catch (XsltException ex)
+            {
+                var innerExceptionDetails = "";
+                if (ex.InnerException != null)
+                {
+                    innerExceptionDetails = $" Inner Exception: {ex.InnerException.Message}";
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        innerExceptionDetails += $" ({ex.InnerException.InnerException.Message})";
+                    }
+                }
+
+                var errorResponse = new
+                {
+                    error = "B³¹d transformacji XSLT",
+                    details = ex.Message + innerExceptionDetails,
+                    lineNumber = ex.LineNumber > 0 ? (int?)ex.LineNumber : null,
+                    suggestion = innerExceptionDetails.Contains("KodyKrajow", StringComparison.OrdinalIgnoreCase) ? "Brak pliku schematów krajów. Uruchom download-schema.bat aby pobraæ brakuj¹ce pliki." : null
+                };
+
+                return BadRequest(errorResponse);
+            }
+            catch (Exception ex)
+            {
+                var innerExceptionDetails = "";
+                if (ex.InnerException != null)
+                {
+                    innerExceptionDetails = $" Inner Exception: {ex.InnerException.Message}";
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        innerExceptionDetails += $" ({ex.InnerException.InnerException.Message})";
+                    }
+                }
+
+                return BadRequest(new { 
+                    error = "B³¹d transformacji XML do HTML", 
+                    details = ex.Message + innerExceptionDetails
+                });
+            }
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadXml(IFormFile file)
+        {
+            using var reader = new StreamReader(file.OpenReadStream());
+            var xml = await reader.ReadToEndAsync();
+            return await TransformXmlToHtml(xml);
+        }
+
+        [HttpGet("status")]
+        public IActionResult GetStatus()
+        {
+            var files = new Dictionary<string, object>();
+            
+            // Check main schema files
+            var schemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "schemat.xsd");
+            var structureSchemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "StrukturyDanych_v10-0E.xsd");
+            var elementarySchemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "ElementarneTypyDanych_v10-0E.xsd");
+            
+            // Check XSL files
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+            var externalXslPath = Path.Combine(_env.ContentRootPath, "Ksef", "WspolneSzablonyWizualizacji_v12-0E.xsl");
+            
+            // Check optional schema files
+            var countryCodesPath = Path.Combine(_env.ContentRootPath, "Ksef", "KodyKrajow_v10-0E.xsd");
+            var taxOfficePath = Path.Combine(_env.ContentRootPath, "Ksef", "KodyUrzedowSkarbowych_v8-0E.xsd");
+            var currencyPath = Path.Combine(_env.ContentRootPath, "Ksef", "KodyWalut_v1-0E.xsd");
+            
+            files.Add("schemat.xsd", new { 
+                exists = System.IO.File.Exists(schemaPath), 
+                required = true, 
+                description = "G³ówny schemat KSEF" 
+            });
+            
+            files.Add("StrukturyDanych_v10-0E.xsd", new { 
+                exists = System.IO.File.Exists(structureSchemaPath), 
+                required = true, 
+                description = "Struktury danych gov.pl" 
+            });
+            
+            files.Add("ElementarneTypyDanych_v10-0E.xsd", new { 
+                exists = System.IO.File.Exists(elementarySchemaPath), 
+                required = true, 
+                description = "Elementarne typy danych gov.pl" 
+            });
+            
+            files.Add("styl.xsl", new { 
+                exists = System.IO.File.Exists(xslPath), 
+                required = true, 
+                description = "Szablon XSL dla transformacji HTML" 
+            });
+            
+            files.Add("WspolneSzablonyWizualizacji_v12-0E.xsl", new { 
+                exists = System.IO.File.Exists(externalXslPath), 
+                required = false, 
+                description = "Wspólne szablony wizualizacji gov.pl" 
+            });
+            
+            files.Add("KodyKrajow_v10-0E.xsd", new { 
+                exists = System.IO.File.Exists(countryCodesPath), 
+                required = false, 
+                description = "Kody krajów (poprawia czytelnoœæ HTML)" 
+            });
+            
+            files.Add("KodyUrzedowSkarbowych_v8-0E.xsd", new { 
+                exists = System.IO.File.Exists(taxOfficePath), 
+                required = false, 
+                description = "Kody urzêdów skarbowych (poprawia czytelnoœæ HTML)" 
+            });
+            
+            files.Add("KodyWalut_v1-0E.xsd", new { 
+                exists = System.IO.File.Exists(currencyPath), 
+                required = false, 
+                description = "Kody walut (poprawia czytelnoœæ HTML)" 
+            });
+            
+            var requiredFiles = files.Where(f => ((dynamic)f.Value).required).ToList();
+            var missingRequiredFiles = requiredFiles.Where(f => !((dynamic)f.Value).exists).ToList();
+            var optionalFiles = files.Where(f => !((dynamic)f.Value).required).ToList();
+            var presentOptionalFiles = optionalFiles.Where(f => ((dynamic)f.Value).exists).ToList();
+            
+            return Ok(new {
+                status = missingRequiredFiles.Any() ? "ERROR" : "OK",
+                message = missingRequiredFiles.Any() 
+                    ? $"Brakuje {missingRequiredFiles.Count} wymaganych plików" 
+                    : "Wszystkie wymagane pliki s¹ dostêpne",
+                canValidate = !missingRequiredFiles.Any(),
+                canTransform = !missingRequiredFiles.Any(),
+                files = files,
+                summary = new {
+                    requiredFiles = $"{requiredFiles.Count - missingRequiredFiles.Count}/{requiredFiles.Count}",
+                    optionalFiles = $"{presentOptionalFiles.Count}/{optionalFiles.Count}",
+                    missingRequired = missingRequiredFiles.Select(f => f.Key).ToList(),
+                    downloadSuggestion = missingRequiredFiles.Any() ? "Uruchom download-schema.bat aby pobraæ brakuj¹ce pliki" : null
+                }
+            });
+        }
+
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            return Ok(new { 
+                message = "KSeF API is running", 
+                timestamp = DateTime.UtcNow,
+                environment = Environment.MachineName,
+                version = "1.0.0"
+            });
+        }
+
+        [HttpPost("test")]
+        public IActionResult Test([FromBody] object data)
+        {
+            return Ok(new { 
+                received = "OK", 
+                dataType = data?.GetType().Name ?? "null",
+                timestamp = DateTime.UtcNow 
+            });
+        }
+
+        [HttpGet("info")]
+        public IActionResult GetInfo()
+        {
+            var request = HttpContext.Request;
+            var hostInfo = new
+            {
+                scheme = request.Scheme,
+                host = request.Host.Value,
+                fullUrl = $"{request.Scheme}://{request.Host.Value}",
+                path = request.Path,
+                queryString = request.QueryString.Value,
+                headers = request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString()),
+                environment = new
+                {
+                    machineName = Environment.MachineName,
+                    osVersion = Environment.OSVersion.ToString(),
+                    dotnetVersion = Environment.Version.ToString(),
+                    workingDirectory = Environment.CurrentDirectory,
+                    isContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true"
+                }
+            };
+
+            return Ok(new
+            {
+                message = "KSeF API Configuration Info",
+                timestamp = DateTime.UtcNow,
+                connection = hostInfo,
+                suggestedHttpVariable = $"@KsefApi_HostAddress = {hostInfo.fullUrl}"
+            });
+        }
+
+        // Create a minimal XSL template to replace the missing external one
+        private async Task EnsureMinimalTemplateExists(string filePath)
+        {
+            if (!System.IO.File.Exists(filePath))
+            {
+                var minimalTemplate = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<xsl:stylesheet xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"" version=""1.0"">
+    <!-- Minimal template to replace missing WspolneSzablonyWizualizacji_v12-0E.xsl -->
+    
+    <!-- Common styling template -->
+    <xsl:template name=""NaglowekTytulowy"">
+        <xsl:param name=""uzycie"" />
+        <xsl:param name=""nazwa"" />
+        <div style=""text-align: center; font-weight: bold; font-size: 1.5em; margin: 20px 0; background-color: #f0f0f0; padding: 10px;"">
+            <xsl:copy-of select=""$nazwa"" />
+        </div>
+    </xsl:template>
+    
+    <!-- Template for document title -->
+    <xsl:template name=""TytulDokumentu"">
+        <xsl:text>e-FAKTURA KSeF</xsl:text>
+    </xsl:template>
+    
+    <!-- Basic styling -->
+    <xsl:template name=""StyleDlaFormularza"">
+        <style type=""text/css"">
+            .deklaracja { margin: 20px; font-family: Arial, sans-serif; }
+            .naglowek { text-align: center; margin-bottom: 20px; }
+            .kod-formularza { font-weight: bold; font-size: 1.2em; }
+            .wariant { font-style: italic; }
+            .etykieta { margin: 10px 0; font-weight: bold; }
+            .niewypelniane { background-color: #f0f0f0; font-weight: bold; padding: 8px; border: 1px solid #ccc; text-align: center; }
+            .wypelniane { padding: 8px; border: 1px solid #ccc; }
+            .white-space { border-collapse: collapse; width: 100%; margin: 10px 0; }
+            .white-space td { border: 1px solid #ccc; padding: 5px; vertical-align: top; }
+            .break-word { word-wrap: break-word; width: 100%; }
+            .normalna { border-collapse: collapse; width: 100%; }
+            .normalna td { border: 1px solid #ccc; padding: 5px; vertical-align: top; }
+            .lewa { text-align: left; }
+            .srodek { text-align: center; }
+            .prawa { text-align: right; }
+        </style>
+    </xsl:template>
+</xsl:stylesheet>";
+
+                await System.IO.File.WriteAllTextAsync(filePath, minimalTemplate);
+            }
+        }
+    }
+
+    // Enhanced XML resolver to handle local schema and XSL files
+    public class LocalResourceResolver : XmlResolver
+    {
+        private readonly string _basePath;
+        private readonly Dictionary<string, string> _resourceMapping;
+
+        public LocalResourceResolver(string basePath)
+        {
+            _basePath = basePath;
+            
+            // Map external URIs to local files
+            _resourceMapping = new Dictionary<string, string>
+            {
+                // Schema mappings
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "StrukturyDanych_v10-0E.xsd") },
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/ElementarneTypyDanych_v10-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "ElementarneTypyDanych_v10-0E.xsd") },
+                
+                // Additional schema files that XSL template might try to access via document() function
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/KodyKrajow_v10-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "KodyKrajow_v10-0E.xsd") },
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/KodyUrzedowSkarbowych/KodyUrzedowSkarbowych_v8-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "KodyUrzedowSkarbowych_v8-0E.xsd") },
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/KodyUrzedowSkarbowychExWUS/KodyUrzedowSkarbowychExWUS_v8-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "KodyUrzedowSkarbowychExWUS_v8-0E.xsd") },
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2017/02/06/eD/KodyNaczelnikowUrzedowSkarbowych/KodyNaczelnikowUrzedowSkarbowych_v4-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "KodyNaczelnikowUrzedowSkarbowych_v4-0E.xsd") },
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/12/23/eD/KodyWalut/KodyWalut_v1-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "KodyWalut_v1-0E.xsd") },
+                
+                // XSL template mappings
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/07/eD/DefinicjeSzablony/WspolneSzablonyWizualizacji_v12-0E.xsl", 
+                  Path.Combine(_basePath, "Ksef", "WspolneSzablonyWizualizacji_v12-0E.xsl") }
+            };
+        }
+
+        public override object? GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
+        {
+            try
+            {
+                var uriString = absoluteUri.ToString();
+
+                // Handle the specific XSL import from styl.xsl
+                if (uriString == "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/07/eD/DefinicjeSzablony/WspolneSzablonyWizualizacji_v12-0E.xsl")
+                {
+                    var localFile = Path.Combine(_basePath, "Ksef", "WspolneSzablonyWizualizacji_v12-0E.xsl");
+                    if (System.IO.File.Exists(localFile))
+                    {
+                        return new FileStream(localFile, FileMode.Open, FileAccess.Read);
+                    }
+                }
+
+                // Check if we have a local mapping for this URI
+                foreach (var mapping in _resourceMapping)
+                {
+                    if (uriString.Equals(mapping.Key, StringComparison.OrdinalIgnoreCase) ||
+                        uriString.Contains(mapping.Key) || 
+                        uriString.Contains(Path.GetFileName(mapping.Value)) ||
+                        uriString.EndsWith(Path.GetFileName(mapping.Value)))
+                    {
+                        if (System.IO.File.Exists(mapping.Value))
+                        {
+                            return new FileStream(mapping.Value, FileMode.Open, FileAccess.Read);
+                        }
+                        else
+                        {
+                            // Log missing file for debugging
+                            System.Diagnostics.Debug.WriteLine($"Missing file: {mapping.Value}");
+                            
+                            // For missing schema files, return null so XSL can continue without names for codes
+                            if (mapping.Value.EndsWith(".xsd"))
+                            {
+                                return null;
+                            }
+                        }
+                    }
+                }
+
+                // Try default resolution for other resources
+                try
+                {
+                    var defaultResolver = new XmlUrlResolver();
+                    return defaultResolver.GetEntity(absoluteUri, role, ofObjectToReturn);
+                }
+                catch
+                {
+                    // If external resolution fails, return null to allow processing to continue
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error for debugging
+                System.Diagnostics.Debug.WriteLine($"LocalResourceResolver error: {ex.Message}");
+                
+                // For critical XSL files, try to find them locally
+                var fileName = Path.GetFileName(absoluteUri.LocalPath);
+                if (fileName.EndsWith(".xsl"))
+                {
+                    var localFile = Path.Combine(_basePath, "Ksef", fileName);
+                    if (System.IO.File.Exists(localFile))
+                    {
+                        return new FileStream(localFile, FileMode.Open, FileAccess.Read);
+                    }
+                }
+                
+                return null;
+            }
+        }
+
+        public override Uri? ResolveUri(Uri? baseUri, string? relativeUri)
+        {
+            try
+            {
+                if (relativeUri == null) return baseUri;
+
+                // Handle specific external XSL imports
+                if (relativeUri.Contains("WspolneSzablonyWizualizacji_v12-0E.xsl"))
+                {
+                    return new Uri("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/07/eD/DefinicjeSzablony/WspolneSzablonyWizualizacji_v12-0E.xsl");
+                }
+
+                // Handle relative URIs for local resources
+                foreach (var mapping in _resourceMapping)
+                {
+                    if (relativeUri.Contains(Path.GetFileName(mapping.Value)))
+                    {
+                        return new Uri(mapping.Key);
+                    }
+                }
+
+                // Use absolute URI if provided and it looks like our resource
+                if (Uri.IsWellFormedUriString(relativeUri, UriKind.Absolute))
+                {
+                    return new Uri(relativeUri);
+                }
+
+                return new XmlUrlResolver().ResolveUri(baseUri, relativeUri);
+            }
+            catch
+            {
+                return baseUri;
+            }
+        }
+
+        public override ICredentials? Credentials
+        {
+            set { }
+        }
+    }
+}

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>3</WariantFormularza>
+        <DataWytworzeniaFa>2025-01-15T13:15:00Z</DataWytworzeniaFa>
+        <SystemInfo>System Odwrotne Obciążenie v1.8</SystemInfo>
+    </Naglowek>
+    
+    <Podmiot1>
+        <PrefiksPodatnika>PL</PrefiksPodatnika>
+        <DaneIdentyfikacyjne>
+            <NIP>1111222333</NIP>
+            <Nazwa>Budowa Sp. z o.o.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Budowlana 30</AdresL1>
+            <AdresL2>04-567 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>4444555666</NIP>
+            <Nazwa>Konstrukcje Stalowe S.A.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Przemysłowa 45</AdresL1>
+            <AdresL2>05-678 Kraków</AdresL2>
+        </Adres>
+        <JST>2</JST>
+        <GV>2</GV>
+    </Podmiot2>
+    
+    <Fa>
+        <KodWaluty>PLN</KodWaluty>
+        <P_1>2025-01-15</P_1>
+        <P_1M>Warszawa</P_1M>
+        <P_2>FV/OO/2025/001</P_2>
+        <P_6>2025-01-15</P_6>
+        
+        <!-- Odwrotne obciążenie -->
+        <P_13_10>50000.00</P_13_10>
+        
+        <P_15>50000.00</P_15>
+        
+        <Adnotacje>
+            <P_16>2</P_16>
+            <P_17>2</P_17>
+            <P_18>1</P_18>
+            <P_18A>2</P_18A>
+            <Zwolnienie>
+                <P_19N>1</P_19N>
+            </Zwolnienie>
+            <NoweSrodkiTransportu>
+                <P_22N>1</P_22N>
+            </NoweSrodkiTransportu>
+            <P_23>2</P_23>
+            <PMarzy>
+                <P_PMarzyN>1</P_PMarzyN>
+            </PMarzy>
+        </Adnotacje>
+        
+        <RodzajFaktury>VAT</RodzajFaktury>
+        
+        <FaWiersz>
+            <NrWierszaFa>1</NrWierszaFa>
+            <P_7>Konstrukcje stalowe - montaż</P_7>
+            <Indeks>KONSTR001</Indeks>
+            <PKWiU>43.99.1</PKWiU>
+            <P_8A>m2</P_8A>
+            <P_8B>500.00</P_8B>
+            <P_9A>100.00</P_9A>
+            <P_11>50000.00</P_11>
+            <P_12>oo</P_12>
+            <GTU>GTU_02</GTU>
+        </FaWiersz>
+        
+        <Platnosc>
+            <TerminPlatnosci>
+                <Termin>2025-02-28</Termin>
+            </TerminPlatnosci>
+            <FormaPlatnosci>6</FormaPlatnosci>
+            <RachunekBankowy>
+                <NrRB>11223344556677889900112233</NrRB>
+                <NazwaBanku>mBank S.A.</NazwaBanku>
+            </RachunekBankowy>
+        </Platnosc>
+        
+        <WarunkiTransakcji>
+            <Umowy>
+                <DataUmowy>2025-01-05</DataUmowy>
+                <NrUmowy>UB/2025/001</NrUmowy>
+            </Umowy>
+        </WarunkiTransakcji>
+        
+        <DodatkowyOpis>
+            <Klucz>Uwagi</Klucz>
+            <Wartosc>Usługa budowlana podlega odwrotnemu obciążeniu zgodnie z art. 17 ust. 1 pkt 7 ustawy o VAT</Wartosc>
+        </DodatkowyOpis>
+    </Fa>
+    
+    <Stopka>
+        <Informacje>
+            <StopkaFaktury>Usługa budowlana - obowiązek rozliczenia podatku VAT po stronie nabywcy</StopkaFaktury>
+        </Informacje>
+    </Stopka>
+</Faktura>
