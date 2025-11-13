@@ -1,11 +1,6 @@
 @KsefApi_HostAddress = http://localhost:5228
 # Alternatively for HTTPS: @KsefApi_HostAddress = https://localhost:7275
 
-# Test endpoints
-GET {{KsefApi_HostAddress}}/weatherforecast/
-Accept: application/json
-### 
-
 # Get API configuration info (shows correct URL to use)
 GET {{KsefApi_HostAddress}}/api/ksef/info
 Accept: application/json
