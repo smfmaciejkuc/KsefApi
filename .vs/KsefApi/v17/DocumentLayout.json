@@ -1,0 +1,397 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\dev\\Ksef\\KsefApi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\ksefapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:ksefapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D0378405-8767-4A2D-B85B-0A08F3C66596}|..\\CertyficateManager\\CertyficateManager.csproj|c:\\dev\\ksef\\certyficatemanager\\runtimecertmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D0378405-8767-4A2D-B85B-0A08F3C66596}|..\\CertyficateManager\\CertyficateManager.csproj|c:\\dev\\ksef\\certyficatemanager\\certtools.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D0378405-8767-4A2D-B85B-0A08F3C66596}|..\\CertyficateManager\\CertyficateManager.csproj|c:\\dev\\ksef\\certyficatemanager\\runtimecert.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D0378405-8767-4A2D-B85B-0A08F3C66596}|..\\CertyficateManager\\CertyficateManager.csproj|c:\\dev\\ksef\\certyficatemanager\\signer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\ksef\\schemat.xsd||{DEE6CEF9-3BCA-449A-82A6-FC757D6956FB}|",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:ksef\\schemat.xsd||{DEE6CEF9-3BCA-449A-82A6-FC757D6956FB}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\ksef\\elementarnetypydanych_v10-0e.xsd||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:ksef\\elementarnetypydanych_v10-0e.xsd||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\ksef\\schemat.xsd||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:ksef\\schemat.xsd||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\controllers\\ksefcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:controllers\\ksefcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\examples\\examples_fa_3\\fa_3_przyk\u0142ad_10.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:examples\\examples_fa_3\\fa_3_przyk\u0142ad_10.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\examples\\examples_fa_3\\fa_3_przyk\u0142ad_9.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:examples\\examples_fa_3\\fa_3_przyk\u0142ad_9.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\ksef\\styl.xsl||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:ksef\\styl.xsl||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\ksefapi.http||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:ksefapi.http||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|c:\\dev\\ksef\\ksefapi\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}|KsefApi.csproj|solutionrelative:readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 47,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:136:0:{13b12e3e-c1b4-4539-9371-4fe9a0d523fc}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{80454082-9ab8-47d4-af23-82bf6739e2a9}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:11:0:{2456bd12-ecf7-4988-a4a6-67d49173f565}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:137:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:139:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:141:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:136:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:140:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:5:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:6:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:7:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:8:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:9:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:10:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:136:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:134:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:138:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:3:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:140:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:141:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:138:0:{13b12e3e-c1b4-4539-9371-4fe9a0d523fc}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:143:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:11:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:12:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{6bf11835-8a31-496c-b01e-94f731afc7ce}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:134:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:132:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:13:0:{2456bd12-ecf7-4988-a4a6-67d49173f565}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:135:0:{13b12e3e-c1b4-4539-9371-4fe9a0d523fc}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "RuntimeCert.cs",
+              "DocumentMoniker": "C:\\dev\\Ksef\\CertyficateManager\\RuntimeCert.cs",
+              "RelativeDocumentMoniker": "..\\CertyficateManager\\RuntimeCert.cs",
+              "ToolTip": "C:\\dev\\Ksef\\CertyficateManager\\RuntimeCert.cs",
+              "RelativeToolTip": "..\\CertyficateManager\\RuntimeCert.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T10:15:05.188Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "RuntimeCertManager.cs",
+              "DocumentMoniker": "C:\\dev\\Ksef\\CertyficateManager\\RuntimeCertManager.cs",
+              "RelativeDocumentMoniker": "..\\CertyficateManager\\RuntimeCertManager.cs",
+              "ToolTip": "C:\\dev\\Ksef\\CertyficateManager\\RuntimeCertManager.cs",
+              "RelativeToolTip": "..\\CertyficateManager\\RuntimeCertManager.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAjwFAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T10:13:46.78Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Signer.cs",
+              "DocumentMoniker": "C:\\dev\\Ksef\\CertyficateManager\\Signer.cs",
+              "RelativeDocumentMoniker": "..\\CertyficateManager\\Signer.cs",
+              "ToolTip": "C:\\dev\\Ksef\\CertyficateManager\\Signer.cs",
+              "RelativeToolTip": "..\\CertyficateManager\\Signer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T09:19:15.718Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CertTools.cs",
+              "DocumentMoniker": "C:\\dev\\Ksef\\CertyficateManager\\CertTools.cs",
+              "RelativeDocumentMoniker": "..\\CertyficateManager\\CertTools.cs",
+              "ToolTip": "C:\\dev\\Ksef\\CertyficateManager\\CertTools.cs",
+              "RelativeToolTip": "..\\CertyficateManager\\CertTools.cs",
+              "ViewState": "AgIAAJoAAAAAAAAAAADwv5kAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T09:12:28.769Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ElementarneTypyDanych_v10-0E.xsd",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\Ksef\\ElementarneTypyDanych_v10-0E.xsd",
+              "RelativeDocumentMoniker": "Ksef\\ElementarneTypyDanych_v10-0E.xsd",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\Ksef\\ElementarneTypyDanych_v10-0E.xsd",
+              "RelativeToolTip": "Ksef\\ElementarneTypyDanych_v10-0E.xsd",
+              "ViewState": "AgIAAL8AAAAAAAAAAAAAAM8AAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003579|",
+              "WhenOpened": "2025-11-18T12:30:01.02Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "styl.xsl",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\Ksef\\styl.xsl",
+              "RelativeDocumentMoniker": "Ksef\\styl.xsl",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\Ksef\\styl.xsl",
+              "RelativeToolTip": "Ksef\\styl.xsl",
+              "ViewState": "AgIAAOcFAAAAAAAAAAAlwPwFAABJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003586|",
+              "WhenOpened": "2025-11-18T12:10:51.523Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "FA_3_Przyk\u0142ad_9.xml",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_9.xml",
+              "RelativeDocumentMoniker": "Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_9.xml",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_9.xml",
+              "RelativeToolTip": "Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_9.xml",
+              "ViewState": "AgIAACcAAAAAAAAAAAAWwDkAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003576|",
+              "WhenOpened": "2025-11-18T11:26:10.382Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "FA_3_Przyk\u0142ad_10.xml",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_10.xml",
+              "RelativeDocumentMoniker": "Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_10.xml",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_10.xml",
+              "RelativeToolTip": "Examples\\examples_FA_3\\FA_3_Przyk\u0142ad_10.xml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003576|",
+              "WhenOpened": "2025-11-18T11:18:53.807Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "schemat.xsd",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\Ksef\\schemat.xsd",
+              "RelativeDocumentMoniker": "Ksef\\schemat.xsd",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\Ksef\\schemat.xsd",
+              "RelativeToolTip": "Ksef\\schemat.xsd",
+              "ViewState": "AgIAAAYMAAAAAAAAAAAAAAoMAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003579|",
+              "WhenOpened": "2025-11-18T10:27:10.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "schemat.xsd [Design]",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\Ksef\\schemat.xsd",
+              "RelativeDocumentMoniker": "Ksef\\schemat.xsd",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\Ksef\\schemat.xsd [Design]",
+              "RelativeToolTip": "Ksef\\schemat.xsd [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003579|",
+              "WhenOpened": "2025-11-18T10:26:58.808Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "README.md",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\README.md",
+              "RelativeDocumentMoniker": "README.md",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\README.md",
+              "RelativeToolTip": "README.md",
+              "ViewState": "AgIAAPkAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-11-13T16:59:31.514Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "KsefApi.csproj",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\KsefApi.csproj",
+              "RelativeDocumentMoniker": "KsefApi.csproj",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\KsefApi.csproj",
+              "RelativeToolTip": "KsefApi.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-11-13T16:50:21.129Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "KsefController.cs",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\Controllers\\KsefController.cs",
+              "RelativeDocumentMoniker": "Controllers\\KsefController.cs",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\Controllers\\KsefController.cs",
+              "RelativeToolTip": "Controllers\\KsefController.cs",
+              "ViewState": "AgIAAMcBAAAAAAAAAAAYwLMBAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T16:26:57.4Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "KsefApi.http",
+              "DocumentMoniker": "C:\\dev\\Ksef\\KsefApi\\KsefApi.http",
+              "RelativeDocumentMoniker": "KsefApi.http",
+              "ToolTip": "C:\\dev\\Ksef\\KsefApi\\KsefApi.http",
+              "RelativeToolTip": "KsefApi.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2025-11-13T13:40:03.276Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

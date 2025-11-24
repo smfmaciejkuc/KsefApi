@@ -1,0 +1,74 @@
+﻿using System.Reflection;
+
+namespace KsefApi.Tests.Utilities
+{
+    public static class TestDataHelper
+    {
+        private static readonly string TestDataDirectory = Path.Combine(
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
+            "TestData"
+        );
+
+        public static string LoadTestXml(string fileName)
+        {
+            var filePath = Path.Combine(TestDataDirectory, fileName);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Test data file not found: {filePath}");
+            }
+            return File.ReadAllText(filePath);
+        }
+
+        public static string GetValidInvoiceXml() => LoadTestXml("ValidInvoice.xml");
+        public static string GetMalformedXml() => LoadTestXml("MalformedXml.xml");
+        public static string GetMissingRequiredXml() => LoadTestXml("MissingRequired.xml");
+        public static string GetRedundantElementsXml() => LoadTestXml("RedundantElements.xml");
+
+        public static string CreateXmlWithInvalidData(string elementName, string invalidValue)
+        {
+            var validXml = GetValidInvoiceXml();
+            return validXml.Replace($"<{elementName}>", $"<{elementName}>{invalidValue}</{elementName}><{elementName}>");
+        }
+
+        public static string CreateXmlWithMissingElement(string elementToRemove)
+        {
+            var validXml = GetValidInvoiceXml();
+            var startTag = $"<{elementToRemove}>";
+            var endTag = $"</{elementToRemove}>";
+            
+            var startIndex = validXml.IndexOf(startTag);
+            if (startIndex == -1) return validXml;
+            
+            var endIndex = validXml.IndexOf(endTag, startIndex);
+            if (endIndex == -1) return validXml;
+            
+            return validXml.Remove(startIndex, endIndex - startIndex + endTag.Length);
+        }
+
+        public static IEnumerable<object[]> GetInvalidDataTestCases()
+        {
+            return new[]
+            {
+                new object[] { "DataWytworzeniaFa", "invalid-date-format", "Invalid date format" },
+                new object[] { "NIP", "123", "NIP too short" },
+                new object[] { "NIP", "123456789A", "NIP with letters" },
+                new object[] { "P_13_1", "not_a_number", "Invalid monetary format" },
+                new object[] { "P_15", "123.456.789", "Invalid decimal format" },
+                new object[] { "KodKraju", "INVALID", "Invalid country code" }
+            };
+        }
+
+        public static IEnumerable<object[]> GetMissingElementTestCases()
+        {
+            return new[]
+            {
+                new object[] { "Naglowek", "Missing required header" },
+                new object[] { "KodFormularza", "Missing form code" },
+                new object[] { "Podmiot1", "Missing first party" },
+                new object[] { "Podmiot2", "Missing second party" },
+                new object[] { "Fa", "Missing invoice section" },
+                new object[] { "NIP", "Missing tax number" }
+            };
+        }
+    }
+}

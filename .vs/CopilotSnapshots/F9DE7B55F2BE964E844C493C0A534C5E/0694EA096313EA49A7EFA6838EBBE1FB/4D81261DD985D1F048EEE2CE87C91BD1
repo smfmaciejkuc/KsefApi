@@ -1,0 +1,52 @@
+﻿@echo off
+echo ================================================
+echo           KSeF API - Uruchamianie testów
+echo ================================================
+echo.
+
+echo Sprawdzanie struktury projektu...
+if not exist "KsefApi.Tests\KsefApi.Tests.csproj" (
+    echo BŁĄD: Nie znaleziono projektu testowego
+    echo Sprawdź czy katalog KsefApi.Tests istnieje
+    pause
+    exit /b 1
+)
+
+echo.
+echo Przywracanie pakietów projektu testowego...
+cd KsefApi.Tests
+dotnet restore
+if %errorlevel% neq 0 (
+    echo BŁĄD: Nie udało się przywrócić pakietów
+    cd ..
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo Budowanie projektu testowego...
+dotnet build --no-restore
+if %errorlevel% neq 0 (
+    echo BŁĄD: Budowanie nieudane
+    cd ..
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo Uruchamianie testów...
+dotnet test --no-build --logger "console;verbosity=normal"
+set TEST_EXIT_CODE=%errorlevel%
+
+echo.
+echo ================================================
+if %TEST_EXIT_CODE% equ 0 (
+    echo           TESTY ZAKOŃCZONE SUKCESEM
+) else (
+    echo             TESTY ZAKOŃCZONE BŁĘDEM
+)
+echo ================================================
+
+cd ..
+pause
+exit /b %TEST_EXIT_CODE%

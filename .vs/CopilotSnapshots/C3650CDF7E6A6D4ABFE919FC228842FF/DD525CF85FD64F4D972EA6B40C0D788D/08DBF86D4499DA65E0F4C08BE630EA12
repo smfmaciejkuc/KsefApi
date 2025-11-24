@@ -1,0 +1,39 @@
+﻿@KsefApi_HostAddress = http://localhost:5228
+
+GET {{KsefApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+# Ksef Controller Endpoints
+
+# Validate XML content
+POST {{KsefApi_HostAddress}}/api/ksef/validate
+Content-Type: application/json
+
+"<xml><test>Sample XML content to validate</test></xml>"
+
+###
+
+# Transform XML to HTML
+POST {{KsefApi_HostAddress}}/api/ksef/html
+Content-Type: application/json
+
+"<xml><test>Sample XML content to transform</test></xml>"
+
+###
+
+# Upload XML file and transform to HTML
+POST {{KsefApi_HostAddress}}/api/ksef/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="example.xml"
+Content-Type: application/xml
+
+<xml>
+  <test>Sample XML file content</test>
+</xml>
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###

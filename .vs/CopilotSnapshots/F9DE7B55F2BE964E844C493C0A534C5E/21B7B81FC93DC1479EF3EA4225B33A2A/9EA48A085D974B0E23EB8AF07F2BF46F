@@ -1,0 +1,53 @@
+﻿@echo off
+echo ================================================
+echo           KSeF API Validation Tests
+echo ================================================
+echo.
+
+echo Restoring packages...
+dotnet restore
+if %errorlevel% neq 0 (
+    echo Failed to restore packages
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo Building project...
+dotnet build --no-restore
+if %errorlevel% neq 0 (
+    echo Build failed
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo Running validation tests...
+echo.
+
+echo === Running basic validation tests ===
+dotnet test --no-build --filter "FullyQualifiedName~KsefValidationTests" --logger "console;verbosity=normal"
+
+echo.
+echo === Running transformation tests ===
+dotnet test --no-build --filter "FullyQualifiedName~KsefTransformationTests" --logger "console;verbosity=normal"
+
+echo.
+echo === Running status/health check tests ===
+dotnet test --no-build --filter "FullyQualifiedName~KsefStatusTests" --logger "console;verbosity=normal"
+
+echo.
+echo === Running data-driven validation tests ===
+dotnet test --no-build --filter "FullyQualifiedName~KsefDataDrivenValidationTests" --logger "console;verbosity=normal"
+
+echo.
+echo === Running all tests with detailed output ===
+dotnet test --no-build --logger "console;verbosity=detailed"
+
+echo.
+echo ================================================
+echo                Test Summary
+echo ================================================
+echo Tests completed. Check output above for results.
+echo.
+pause

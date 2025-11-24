@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (2)" kodPodatku="VAT" rodzajVAT="ZWYKLY" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz="P_7">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+        <SystemInfo>TestSystem 1.0</SystemInfo>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company Ltd</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Testowa 1</AdresL1>
+            <AdresL2>00-001 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>0987654321</NIP>
+            <Nazwa>Customer Company</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Kliencka 2</AdresL1>
+            <AdresL2>00-002 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot2>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_6>2024-01-15</P_6>
+        <P_13_1>100.00</P_13_1>
+        <P_14_1>23.00</P_14_1>
+        <P_15>123.00</P_15>
+    </Fa>
+</Faktura>

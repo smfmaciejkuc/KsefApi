@@ -1,0 +1,279 @@
+﻿# KSeF API
+
+## Opis projektu
+
+KSeF API to aplikacja webowa napisana w **ASP.NET Core (.NET 9)**, która udostępnia funkcjonalności do walidacji XML oraz transformacji dokumentów elektronicznych zgodnych ze standardem **KSeF (Krajowy System e-Faktur)**. 
+
+Główne funkcjonalności:
+- ✅ **Walidacja XML** - sprawdzanie poprawności dokumentów XML względem schematów XSD KSeF
+- 🔄 **Transformacja XML do HTML** - konwertowanie dokumentów XML na czytelną wersję HTML
+- 📁 **Upload plików** - obsługa przesyłania plików XML przez formularz
+- 📊 **Monitoring statusu** - sprawdzanie dostępności wymaganych plików schematów
+
+## Wymagania
+
+- **.NET 9 SDK** lub nowszy
+- **Curl** (opcjonalnie, do pobierania schematów)
+- Pliki schematów KSeF w katalogu `Ksef/` (mogą być pobrane automatycznie)
+
+## Instalacja i uruchomienie
+
+### 1. Pobranie wymaganych schematów
+
+Przed pierwszym uruchomieniem należy pobrać oficjalne schematy i szablony z serwera gov.pl:
+
+```bash
+# Na Windows:
+download-schema.bat
+
+# Na Linux/Mac (alternatywnie):
+mkdir -p Ksef
+curl -o "Ksef/StrukturyDanych_v10-0E.xsd" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd"
+curl -o "Ksef/ElementarneTypyDanych_v10-0E.xsd" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/ElementarneTypyDanych_v10-0E.xsd"
+curl -o "Ksef/WspolneSzablonyWizualizacji_v12-0E.xsl" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/07/eD/DefinicjeSzablony/WspolneSzablonyWizualizacji_v12-0E.xsl"
+```
+
+**Uwaga:** Dodatkowo wymagane są pliki `schemat.xsd` i `styl.xsl` w katalogu `Ksef/` - te pliki muszą być dostarczone lokalnie.
+
+### 2. Uruchomienie aplikacji
+
+```bash
+# Przejdź do katalogu projektu
+cd KsefApi
+
+# Przywróć pakiety NuGet
+dotnet restore
+
+# Uruchom aplikację
+dotnet run
+```
+
+### 3. Alternatywne sposoby uruchomienia
+
+```bash
+# HTTP (port 5228)
+dotnet run --launch-profile http
+
+# HTTPS (porty 7275 i 5228)
+dotnet run --launch-profile https
+
+# Docker
+docker build -t ksef-api .
+docker run -p 5228:8080 -p 7275:8081 ksef-api
+```
+
+## Dostępne endpointy
+
+Po uruchomieniu aplikacji API jest dostępne pod adresem:
+- **HTTP**: `http://localhost:5228`
+- **HTTPS**: `https://localhost:7275`
+
+### 🔍 Endpointy diagnostyczne
+
+#### `GET /api/ksef/info`
+Zwraca informacje o konfiguracji API i środowisku.
+
+**Odpowiedź:**
+```json
+{
+  "message": "KSeF API Configuration Info",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "connection": {
+    "scheme": "http",
+    "host": "localhost:5228",
+    "fullUrl": "http://localhost:5228"
+  },
+  "suggestedHttpVariable": "@KsefApi_HostAddress = http://localhost:5228"
+}
+```
+
+#### `GET /api/ksef/ping`
+Test połączenia z API.
+
+**Odpowiedź:**
+```json
+{
+  "message": "KSeF API is running",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "environment": "DESKTOP-PC",
+  "version": "1.0.0"
+}
+```
+
+#### `GET /api/ksef/status`
+Sprawdza status wymaganych plików schematów i szablonów.
+
+**Odpowiedź:**
+```json
+{
+  "status": "OK",
+  "message": "Wszystkie wymagane pliki są dostępne",
+  "canValidate": true,
+  "canTransform": true,
+  "files": {
+    "schemat.xsd": {
+      "exists": true,
+      "required": true,
+      "description": "Główny schemat KSEF"
+    }
+  },
+  "summary": {
+    "requiredFiles": "4/4",
+    "optionalFiles": "3/5"
+  }
+}
+```
+
+### ✅ Walidacja XML
+
+#### `POST /api/ksef/validate`
+Waliduje dokument XML względem schematów KSeF.
+
+**Content-Type**: `application/json`
+
+**Body**: XML jako string JSON (z escapowanymi cudzysłowami)
+
+**Przykład:**
+```http
+POST /api/ksef/validate
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\">...</Faktura>"
+```
+
+**Odpowiedź (sukces):**
+```json
+{
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "message": "XML jest poprawny zgodnie ze schematem KSEF"
+}
+```
+
+**Odpowiedź (błąd):**
+```json
+{
+  "valid": false,
+  "errors": ["Błąd walidacji: Element 'InvalidElement' nie jest dozwolony (linia: 5)"],
+  "warnings": [],
+  "message": "XML zawiera błędy walidacji"
+}
+```
+
+### 🔄 Transformacja do HTML
+
+#### `POST /api/ksef/html`
+Transformuje dokument XML KSeF do formatu HTML.
+
+**Content-Type**: `application/json`
+
+**Body**: XML jako string JSON
+
+**Przykład:**
+```http
+POST /api/ksef/html
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\">...</Faktura>"
+```
+
+**Odpowiedź:** HTML document (Content-Type: `text/html`)
+
+#### `POST /api/ksef/upload`
+Upload pliku XML przez formularz i transformacja do HTML.
+
+**Content-Type**: `multipart/form-data`
+
+**Body**: Plik XML jako `IFormFile`
+
+### 🧪 Test endpoint
+
+#### `POST /api/ksef/test`
+Endpoint testowy do sprawdzania komunikacji.
+
+**Content-Type**: `application/json`
+
+**Body**: Dowolny obiekt JSON
+
+**Odpowiedź:**
+```json
+{
+  "received": "OK",
+  "dataType": "JsonElement", 
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+## Przykłady użycia
+
+### Testowanie z użyciem pliku KsefApi.http
+
+W projekcie znajduje się plik `KsefApi.http` z gotowymi przykładami zapytań do API, które można wykonać w Visual Studio Code z rozszerzeniem REST Client lub w Visual Studio.
+
+### Curl
+
+```bash
+# Test ping
+curl -X GET http://localhost:5228/api/ksef/ping
+
+# Status plików
+curl -X GET http://localhost:5228/api/ksef/status
+
+# Walidacja XML
+curl -X POST http://localhost:5228/api/ksef/validate \
+  -H "Content-Type: application/json" \
+  -d '"<?xml version=\"1.0\" encoding=\"UTF-8\"?>...</Faktura>"'
+
+# Transformacja do HTML
+curl -X POST http://localhost:5228/api/ksef/html \
+  -H "Content-Type: application/json" \
+  -d '"<?xml version=\"1.0\" encoding=\"UTF-8\"?>...</Faktura>"'
+```
+
+## Struktura plików
+
+```
+KsefApi/
+├── Controllers/
+│   └── KsefController.cs          # Główny kontroler API
+├── Properties/
+│   └── launchSettings.json        # Konfiguracja uruchomienia
+├── Ksef/                          # Pliki schematów i szablonów
+│   ├── schemat.xsd                # Główny schemat KSEF (wymagany)
+│   ├── styl.xsl                   # Szablon XSL (wymagany)
+│   ├── StrukturyDanych_v10-0E.xsd # Struktury danych gov.pl
+│   ├── ElementarneTypyDanych_v10-0E.xsd # Typy bazowe gov.pl  
+│   └── WspolneSzablonyWizualizacji_v12-0E.xsl # Szablony gov.pl
+├── Program.cs                     # Entry point aplikacji
+├── KsefApi.csproj                # Plik projektu
+├── download-schema.bat           # Skrypt pobierania schematów
+├── KsefApi.http                  # Przykłady zapytań HTTP
+└── README.md                     # Dokumentacja
+```
+
+## Rozwiązywanie problemów
+
+### Błędy walidacji
+- Upewnij się, że wszystkie wymagane pliki schematów są obecne w katalogu `Ksef/`
+- Uruchom `download-schema.bat` aby pobrać brakujące pliki
+- Sprawdź status plików przez endpoint `/api/ksef/status`
+
+### Błędy transformacji HTML
+- Sprawdź czy plik `styl.xsl` istnieje w katalogu `Ksef/`
+- Jeśli brakuje `WspolneSzablonyWizualizacji_v12-0E.xsl`, zostanie automatycznie utworzony minimalny szablon zastępczy
+
+### Problemy z portami
+- Domyślnie aplikacja używa portów 5228 (HTTP) i 7275 (HTTPS)
+- Porty można zmienić w pliku `Properties/launchSettings.json`
+
+## Technologie
+
+- **ASP.NET Core 9.0**
+- **C# 13**
+- **System.Xml** - do obsługi XML/XSD/XSLT
+- **Docker** - obsługa konteneryzacji
+
+## Licencja
+
+Projekt służy do obsługi dokumentów zgodnych ze standardem KSeF (Krajowy System e-Faktur) zgodnie z przepisami Ministerstwa Finansów RP.

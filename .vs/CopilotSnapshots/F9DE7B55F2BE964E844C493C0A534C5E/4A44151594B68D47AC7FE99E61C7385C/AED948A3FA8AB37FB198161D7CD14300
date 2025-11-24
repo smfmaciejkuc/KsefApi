@@ -1,0 +1,95 @@
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using FluentAssertions;
+using System.Text;
+using System.Text.Json;
+using Xunit;
+
+namespace KsefApi.Tests
+{
+    public class KsefTransformationTests : IClassFixture<WebApplicationFactory<Program>>
+    {
+        private readonly WebApplicationFactory<Program> _factory;
+        private readonly HttpClient _client;
+
+        public KsefTransformationTests(WebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _client = _factory.CreateClient();
+        }
+
+        [Fact]
+        public async Task TransformToHtml_ValidXml_ReturnsHtml()
+        {
+            // Arrange
+            var validXml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+        <SystemInfo>TestSystem 1.0</SystemInfo>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company Ltd</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Testowa 1</AdresL1>
+            <AdresL2>00-001 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>0987654321</NIP>
+            <Nazwa>Customer Company</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Kliencka 2</AdresL1>
+            <AdresL2>00-002 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot2>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_6>2024-01-15</P_6>
+        <P_13_1>100.00</P_13_1>
+        <P_14_1>23.00</P_14_1>
+        <P_15>123.00</P_15>
+    </Fa>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(validXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/html", content);
+
+            // Assert
+            response.Content.Headers.ContentType?.MediaType.Should().Be("text/html");
+            var html = await response.Content.ReadAsStringAsync();
+            html.Should().NotBeNullOrEmpty();
+            html.Should().Contain("<!DOCTYPE html>", "Should contain HTML doctype");
+            html.Should().Contain("Test Company Ltd", "Should contain company name from XML");
+            html.Should().Contain("123.00", "Should contain total amount from XML");
+        }
+
+        [Fact]
+        public async Task TransformToHtml_MalformedXml_ReturnsError()
+        {
+            // Arrange
+            var malformedXml = "This is not valid XML";
+            var content = new StringContent(JsonSerializer.Serialize(malformedXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/html", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            responseContent.Should().Contain("error");
+        }
+    }
+}

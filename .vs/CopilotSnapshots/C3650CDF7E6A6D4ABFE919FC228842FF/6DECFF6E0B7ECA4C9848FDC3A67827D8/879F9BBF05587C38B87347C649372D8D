@@ -1,0 +1,101 @@
+﻿@KsefApi_HostAddress = http://localhost:5228
+
+GET {{KsefApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+# Ksef Controller Endpoints
+
+# Validate XML content - Podstawowa faktura VAT
+POST {{KsefApi_HostAddress}}/api/ksef/validate
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\" xmlns:etd=\"http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/\"><Naglowek><KodFormularza kodSystemowy=\"FA (3)\" wersjaSchemy=\"1-0E\">FA</KodFormularza><WariantFormularza>3</WariantFormularza><DataWytworzeniaFa>2025-01-15T10:30:00Z</DataWytworzeniaFa></Naglowek><Podmiot1><PrefiksPodatnika>PL</PrefiksPodatnika><DaneIdentyfikacyjne><NIP>1234567890</NIP><Nazwa>ABC Sp. z o.o.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Kwiatowa 15</AdresL1><AdresL2>00-001 Warszawa</AdresL2></Adres></Podmiot1><Podmiot2><DaneIdentyfikacyjne><NIP>9876543210</NIP><Nazwa>XYZ S.A.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Główna 25</AdresL1><AdresL2>02-123 Warszawa</AdresL2></Adres><JST>2</JST><GV>2</GV></Podmiot2><Fa><KodWaluty>PLN</KodWaluty><P_1>2025-01-15</P_1><P_2>FV/2025/001</P_2><P_13_1>1000.00</P_13_1><P_14_1>230.00</P_14_1><P_15>1230.00</P_15><Adnotacje><P_16>2</P_16><P_17>2</P_17><P_18>2</P_18><P_18A>2</P_18A><Zwolnienie><P_19N>1</P_19N></Zwolnienie><NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu><P_23>2</P_23><PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy></Adnotacje><RodzajFaktury>VAT</RodzajFaktury></Fa></Faktura>"
+
+###
+
+# Transform XML to HTML - Faktura korygująca
+POST {{KsefApi_HostAddress}}/api/ksef/html
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\" xmlns:etd=\"http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/\"><Naglowek><KodFormularza kodSystemowy=\"FA (3)\" wersjaSchemy=\"1-0E\">FA</KodFormularza><WariantFormularza>3</WariantFormularza><DataWytworzeniaFa>2025-01-15T11:00:00Z</DataWytworzeniaFa></Naglowek><Podmiot1><DaneIdentyfikacyjne><NIP>1234567890</NIP><Nazwa>ABC Sp. z o.o.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Kwiatowa 15</AdresL1></Adres></Podmiot1><Podmiot2><DaneIdentyfikacyjne><NIP>9876543210</NIP><Nazwa>XYZ S.A.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Główna 25</AdresL1></Adres><JST>2</JST><GV>2</GV></Podmiot2><Fa><KodWaluty>PLN</KodWaluty><P_1>2025-01-15</P_1><P_2>FVK/2025/001</P_2><P_13_1>-200.00</P_13_1><P_14_1>-46.00</P_14_1><P_15>-246.00</P_15><Adnotacje><P_16>2</P_16><P_17>2</P_17><P_18>2</P_18><P_18A>2</P_18A><Zwolnienie><P_19N>1</P_19N></Zwolnienie><NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu><P_23>2</P_23><PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy></Adnotacje><RodzajFaktury>KOR</RodzajFaktury><PrzyczynaKorekty>Błędna ilość</PrzyczynaKorekty><DaneFaKorygowanej><DataWystFaKorygowanej>2025-01-15</DataWystFaKorygowanej><NrFaKorygowanej>FV/2025/001</NrFaKorygowanej><NrKSeFN>1</NrKSeFN></DaneFaKorygowanej></Fa></Faktura>"
+
+###
+
+# Upload XML file and transform to HTML - Faktura WDT
+POST {{KsefApi_HostAddress}}/api/ksef/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="faktura_wdt.xml"
+Content-Type: application/xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>3</WariantFormularza>
+        <DataWytworzeniaFa>2025-01-15T12:30:00Z</DataWytworzeniaFa>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Export Sp. z o.o.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Handlowa 20</AdresL1>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <KodUE>DE</KodUE>
+            <NrVatUE>123456789</NrVatUE>
+            <Nazwa>German Company GmbH</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>DE</KodKraju>
+            <AdresL1>Hauptstraße 15</AdresL1>
+        </Adres>
+        <JST>2</JST>
+        <GV>2</GV>
+    </Podmiot2>
+    <Fa>
+        <KodWaluty>EUR</KodWaluty>
+        <P_1>2025-01-15</P_1>
+        <P_2>FV/WDT/2025/001</P_2>
+        <P_13_6_2>5000.00</P_13_6_2>
+        <P_15>5000.00</P_15>
+        <Adnotacje>
+            <P_16>2</P_16>
+            <P_17>2</P_17>
+            <P_18>2</P_18>
+            <P_18A>2</P_18A>
+            <Zwolnienie><P_19N>1</P_19N></Zwolnienie>
+            <NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu>
+            <P_23>2</P_23>
+            <PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy>
+        </Adnotacje>
+        <RodzajFaktury>VAT</RodzajFaktury>
+    </Fa>
+</Faktura>
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+# Validate - Faktura zaliczkowa
+POST {{KsefApi_HostAddress}}/api/ksef/validate
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\" xmlns:etd=\"http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/\"><Naglowek><KodFormularza kodSystemowy=\"FA (3)\" wersjaSchemy=\"1-0E\">FA</KodFormularza><WariantFormularza>3</WariantFormularza><DataWytworzeniaFa>2025-01-15T09:00:00Z</DataWytworzeniaFa></Naglowek><Podmiot1><DaneIdentyfikacyjne><NIP>1234567890</NIP><Nazwa>ABC Sp. z o.o.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Kwiatowa 15</AdresL1></Adres></Podmiot1><Podmiot2><DaneIdentyfikacyjne><NIP>9876543210</NIP><Nazwa>XYZ S.A.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Główna 25</AdresL1></Adres><JST>2</JST><GV>2</GV></Podmiot2><Fa><KodWaluty>PLN</KodWaluty><P_1>2025-01-10</P_1><P_2>FVZ/2025/001</P_2><P_13_1>4065.04</P_13_1><P_14_1>934.96</P_14_1><P_15>5000.00</P_15><Adnotacje><P_16>2</P_16><P_17>2</P_17><P_18>2</P_18><P_18A>2</P_18A><Zwolnienie><P_19N>1</P_19N></Zwolnienie><NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu><P_23>2</P_23><PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy></Adnotacje><RodzajFaktury>ZAL</RodzajFaktury></Fa></Faktura>"
+
+###
+
+# Validate - Faktura z odwrotnym obciążeniem
+POST {{KsefApi_HostAddress}}/api/ksef/validate
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\" xmlns:etd=\"http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/\"><Naglowek><KodFormularza kodSystemowy=\"FA (3)\" wersjaSchemy=\"1-0E\">FA</KodFormularza><WariantFormularza>3</WariantFormularza><DataWytworzeniaFa>2025-01-15T13:15:00Z</DataWytworzeniaFa></Naglowek><Podmiot1><DaneIdentyfikacyjne><NIP>1111222333</NIP><Nazwa>Budowa Sp. z o.o.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Budowlana 30</AdresL1></Adres></Podmiot1><Podmiot2><DaneIdentyfikacyjne><NIP>4444555666</NIP><Nazwa>Konstrukcje Stalowe S.A.</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Przemysłowa 45</AdresL1></Adres><JST>2</JST><GV>2</GV></Podmiot2><Fa><KodWaluty>PLN</KodWaluty><P_1>2025-01-15</P_1><P_2>FV/OO/2025/001</P_2><P_13_10>50000.00</P_13_10><P_15>50000.00</P_15><Adnotacje><P_16>2</P_16><P_17>2</P_17><P_18>1</P_18><P_18A>2</P_18A><Zwolnienie><P_19N>1</P_19N></Zwolnienie><NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu><P_23>2</P_23><PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy></Adnotacje><RodzajFaktury>VAT</RodzajFaktury></Fa></Faktura>"
+
+###

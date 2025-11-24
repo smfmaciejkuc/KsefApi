@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>3</WariantFormularza>
+        <DataWytworzeniaFa>2025-01-15T12:30:00Z</DataWytworzeniaFa>
+        <SystemInfo>System WDT v3.0</SystemInfo>
+    </Naglowek>
+    
+    <Podmiot1>
+        <PrefiksPodatnika>PL</PrefiksPodatnika>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Export Sp. z o.o.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Handlowa 20</AdresL1>
+            <AdresL2>01-234 Warszawa</AdresL2>
+        </Adres>
+        <DaneKontaktowe>
+            <Email>export@firma.pl</Email>
+            <Telefon>+48111222333</Telefon>
+        </DaneKontaktowe>
+    </Podmiot1>
+    
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <KodUE>DE</KodUE>
+            <NrVatUE>123456789</NrVatUE>
+            <Nazwa>German Company GmbH</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>DE</KodKraju>
+            <AdresL1>Hauptstraße 15</AdresL1>
+            <AdresL2>10115 Berlin</AdresL2>
+        </Adres>
+        <JST>2</JST>
+        <GV>2</GV>
+    </Podmiot2>
+    
+    <Fa>
+        <KodWaluty>EUR</KodWaluty>
+        <P_1>2025-01-15</P_1>
+        <P_1M>Warszawa</P_1M>
+        <P_2>FV/WDT/2025/001</P_2>
+        <WZ>WZ/2025/005</WZ>
+        <P_6>2025-01-14</P_6>
+        
+        <!-- WDT - stawka 0% -->
+        <P_13_6_2>5000.00</P_13_6_2>
+        
+        <P_15>5000.00</P_15>
+        
+        <KursWalutyZ>4.2580</KursWalutyZ>
+        
+        <Adnotacje>
+            <P_16>2</P_16>
+            <P_17>2</P_17>
+            <P_18>2</P_18>
+            <P_18A>2</P_18A>
+            <Zwolnienie>
+                <P_19N>1</P_19N>
+            </Zwolnienie>
+            <NoweSrodkiTransportu>
+                <P_22N>1</P_22N>
+            </NoweSrodkiTransportu>
+            <P_23>2</P_23>
+            <PMarzy>
+                <P_PMarzyN>1</P_PMarzyN>
+            </PMarzy>
+        </Adnotacje>
+        
+        <RodzajFaktury>VAT</RodzajFaktury>
+        
+        <FaWiersz>
+            <NrWierszaFa>1</NrWierszaFa>
+            <P_7>Maszyny przemysłowe</P_7>
+            <Indeks>MACH001</Indeks>
+            <CN>84821000</CN>
+            <PKWiU>28.99.1</PKWiU>
+            <P_8A>szt</P_8A>
+            <P_8B>2</P_8B>
+            <P_9A>2500.00</P_9A>
+            <P_11>5000.00</P_11>
+            <P_12>0 WDT</P_12>
+            <GTU>GTU_06</GTU>
+            <KursWaluty>4.2580</KursWaluty>
+        </FaWiersz>
+        
+        <Platnosc>
+            <TerminPlatnosci>
+                <Termin>2025-02-14</Termin>
+            </TerminPlatnosci>
+            <FormaPlatnosci>6</FormaPlatnosci>
+            <RachunekBankowy>
+                <NrRB>PL12345678901234567890123456</NrRB>
+                <SWIFT>PKOPPLPW</SWIFT>
+                <NazwaBanku>PKO Bank Polski S.A.</NazwaBanku>
+            </RachunekBankowy>
+        </Platnosc>
+        
+        <WarunkiTransakcji>
+            <WarunkiDostawy>EXW</WarunkiDostawy>
+            <KursUmowny>4.2580</KursUmowny>
+            <WalutaUmowna>EUR</WalutaUmowna>
+            
+            <Transport>
+                <RodzajTransportu>3</RodzajTransportu>
+                <Przewoznik>
+                    <DaneIdentyfikacyjne>
+                        <NIP>5555666777</NIP>
+                        <Nazwa>Transport ABC Sp. z o.o.</Nazwa>
+                    </DaneIdentyfikacyjne>
+                    <AdresPrzewoznika>
+                        <KodKraju>PL</KodKraju>
+                        <AdresL1>ul. Logistyczna 5</AdresL1>
+                        <AdresL2>03-456 Warszawa</AdresL2>
+                    </AdresPrzewoznika>
+                </Przewoznik>
+                <OpisLadunku>13</OpisLadunku>
+                <WysylkaZ>
+                    <KodKraju>PL</KodKraju>
+                    <AdresL1>ul. Handlowa 20</AdresL1>
+                    <AdresL2>01-234 Warszawa</AdresL2>
+                </WysylkaZ>
+                <WysylkaDo>
+                    <KodKraju>DE</KodKraju>
+                    <AdresL1>Hauptstraße 15</AdresL1>
+                    <AdresL2>10115 Berlin</AdresL2>
+                </WysylkaDo>
+            </Transport>
+        </WarunkiTransakcji>
+    </Fa>
+</Faktura>

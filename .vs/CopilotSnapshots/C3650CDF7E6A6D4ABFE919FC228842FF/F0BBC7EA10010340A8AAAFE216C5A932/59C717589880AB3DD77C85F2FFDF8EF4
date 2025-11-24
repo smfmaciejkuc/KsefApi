@@ -1,0 +1,53 @@
+﻿#!/usr/bin/env pwsh
+
+Write-Host "🔐 Generowanie certyfikatu developerskiego dla Docker..." -ForegroundColor Cyan
+
+# Utworzenie katalogu na certyfikaty
+$certsPath = ".\certs"
+if (-not (Test-Path $certsPath)) {
+    New-Item -ItemType Directory -Path $certsPath
+    Write-Host "✅ Utworzono katalog certs" -ForegroundColor Green
+}
+
+# Generowanie certyfikatu self-signed
+Write-Host "🔧 Generowanie certyfikatu self-signed..." -ForegroundColor Yellow
+
+try {
+    # Generuj certyfikat dla localhost
+    $cert = New-SelfSignedCertificate -DnsName "localhost", "ksef-api" -CertStoreLocation "cert:\LocalMachine\My" -NotAfter (Get-Date).AddYears(2)
+    
+    # Eksportuj do pliku PFX
+    $pfxPath = "$certsPath\ksef-dev.pfx"
+    $pfxPassword = "KsefDev123!"
+    $securePassword = ConvertTo-SecureString $pfxPassword -AsPlainText -Force
+    Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $securePassword
+    
+    # Eksportuj klucz publiczny
+    $crtPath = "$certsPath\ksef-dev.crt"
+    Export-Certificate -Cert $cert -FilePath $crtPath
+    
+    Write-Host "✅ Certyfikat wygenerowany:" -ForegroundColor Green
+    Write-Host "   - PFX: $pfxPath" -ForegroundColor White
+    Write-Host "   - CRT: $crtPath" -ForegroundColor White
+    Write-Host "   - Hasło: $pfxPassword" -ForegroundColor White
+    
+    # Dodaj certyfikat do zaufanych (opcjonalne)
+    Write-Host "❓ Czy chcesz dodać certyfikat do zaufanych? (y/n)" -ForegroundColor Yellow
+    $response = Read-Host
+    if ($response -eq 'y') {
+        Import-Certificate -FilePath $crtPath -CertStoreLocation "cert:\LocalMachine\Root"
+        Write-Host "✅ Certyfikat dodany do zaufanych" -ForegroundColor Green
+    }
+    
+    Write-Host ""
+    Write-Host "🔧 Zaktualizuj docker-compose.yml aby używać certyfikatów:" -ForegroundColor Cyan
+    Write-Host "environment:" -ForegroundColor White
+    Write-Host "  - ASPNETCORE_Kestrel__Certificates__Default__Password=$pfxPassword" -ForegroundColor White
+    Write-Host "  - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certs/ksef-dev.pfx" -ForegroundColor White
+    Write-Host "volumes:" -ForegroundColor White
+    Write-Host "  - ./certs:/app/certs" -ForegroundColor White
+    
+} catch {
+    Write-Host "❌ Błąd podczas generowania certyfikatu: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "💡 Spróbuj uruchomić PowerShell jako Administrator" -ForegroundColor Yellow
+}

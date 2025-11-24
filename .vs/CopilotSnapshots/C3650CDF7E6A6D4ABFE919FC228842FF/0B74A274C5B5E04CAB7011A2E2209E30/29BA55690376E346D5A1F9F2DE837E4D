@@ -1,0 +1,109 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml;
+using System.Xml.Xsl;
+
+namespace KsefApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class KsefController : ControllerBase
+    {
+        private readonly IWebHostEnvironment _env;
+
+        public KsefController(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+
+        [HttpPost("validate")]
+        public async Task<IActionResult> ValidateXml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var schemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "schemat.xsd");
+            var settings = new XmlReaderSettings();
+            settings.Schemas.Add(null, schemaPath);
+            settings.ValidationType = ValidationType.Schema;
+
+            var errors = new List<string>();
+            settings.ValidationEventHandler += (s, e) => errors.Add(e.Message);
+
+            using var xmlReader = XmlReader.Create(new StringReader(xmlContent), settings);
+            try
+            {
+                while (xmlReader.Read()) { }
+            }
+            catch (XmlException ex)
+            {
+                errors.Add(ex.Message);
+            }
+
+            if (errors.Any())
+                return BadRequest(new { valid = false, errors });
+
+            return Ok(new { valid = true });
+        }
+
+        [HttpPost("html")]
+        public async Task<IActionResult> TransformToHtml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+
+            var transform = new XslCompiledTransform();
+            transform.Load(xslPath);
+
+            using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+            using var sw = new StringWriter();
+            transform.Transform(xmlReader, null, sw);
+
+            return Content(sw.ToString(), "text/html");
+        }
+
+        // Helper method for transforming XML content to HTML
+        private async Task<IActionResult> TransformXmlToHtml(string xmlContent)
+        {
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+
+            var transform = new XslCompiledTransform();
+            transform.Load(xslPath);
+
+            using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+            using var sw = new StringWriter();
+            transform.Transform(xmlReader, null, sw);
+
+            return Content(sw.ToString(), "text/html");
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadXml(IFormFile file)
+        {
+            using var reader = new StreamReader(file.OpenReadStream());
+            var xml = await reader.ReadToEndAsync();
+            return await TransformXmlToHtml(xml);
+        }
+    }
+}

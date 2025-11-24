@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/" xmlns:etd="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>3</WariantFormularza>
+        <DataWytworzeniaFa>2025-01-15T09:00:00Z</DataWytworzeniaFa>
+        <SystemInfo>System Zaliczek v2.1</SystemInfo>
+    </Naglowek>
+    
+    <Podmiot1>
+        <PrefiksPodatnika>PL</PrefiksPodatnika>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>ABC Sp. z o.o.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Kwiatowa 15</AdresL1>
+            <AdresL2>00-001 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>9876543210</NIP>
+            <Nazwa>XYZ S.A.</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Główna 25</AdresL1>
+            <AdresL2>02-123 Warszawa</AdresL2>
+        </Adres>
+        <JST>2</JST>
+        <GV>2</GV>
+    </Podmiot2>
+    
+    <Fa>
+        <KodWaluty>PLN</KodWaluty>
+        <P_1>2025-01-10</P_1>
+        <P_1M>Warszawa</P_1M>
+        <P_2>FVZ/2025/001</P_2>
+        <P_6>2025-01-10</P_6>
+        
+        <!-- Zaliczka z 23% VAT -->
+        <P_13_1>4065.04</P_13_1>
+        <P_14_1>934.96</P_14_1>
+        
+        <P_15>5000.00</P_15>
+        
+        <Adnotacje>
+            <P_16>2</P_16>
+            <P_17>2</P_17>
+            <P_18>2</P_18>
+            <P_18A>2</P_18A>
+            <Zwolnienie>
+                <P_19N>1</P_19N>
+            </Zwolnienie>
+            <NoweSrodkiTransportu>
+                <P_22N>1</P_22N>
+            </NoweSrodkiTransportu>
+            <P_23>2</P_23>
+            <PMarzy>
+                <P_PMarzyN>1</P_PMarzyN>
+            </PMarzy>
+        </Adnotacje>
+        
+        <RodzajFaktury>ZAL</RodzajFaktury>
+        
+        <Zamowienie>
+            <WartoscZamowienia>12300.00</WartoscZamowienia>
+            
+            <ZamowienieWiersz>
+                <NrWierszaZam>1</NrWierszaZam>
+                <P_7Z>System informatyczny - wdrożenie</P_7Z>
+                <IndeksZ>SYS001</IndeksZ>
+                <PKWiUZ>62.01.1</PKWiUZ>
+                <P_8AZ>projekt</P_8AZ>
+                <P_8BZ>1</P_8BZ>
+                <P_9AZ>10000.00</P_9AZ>
+                <P_11NettoZ>10000.00</P_11NettoZ>
+                <P_11VatZ>2300.00</P_11VatZ>
+                <P_12Z>23</P_12Z>
+                <GTUZ>GTU_12</GTUZ>
+            </ZamowienieWiersz>
+            
+        </Zamowienie>
+        
+        <ZaliczkaCzesciowa>
+            <P_6Z>2025-01-10</P_6Z>
+            <P_15Z>5000.00</P_15Z>
+        </ZaliczkaCzesciowa>
+        
+        <Platnosc>
+            <Zaplacono>1</Zaplacono>
+            <DataZaplaty>2025-01-10</DataZaplaty>
+            <FormaPlatnosci>6</FormaPlatnosci>
+            <RachunekBankowy>
+                <NrRB>12345678901234567890123456</NrRB>
+                <NazwaBanku>Bank ABC S.A.</NazwaBanku>
+            </RachunekBankowy>
+        </Platnosc>
+        
+        <WarunkiTransakcji>
+            <Umowy>
+                <DataUmowy>2025-01-05</DataUmowy>
+                <NrUmowy>UM/2025/001</NrUmowy>
+            </Umowy>
+        </WarunkiTransakcji>
+    </Fa>
+</Faktura>

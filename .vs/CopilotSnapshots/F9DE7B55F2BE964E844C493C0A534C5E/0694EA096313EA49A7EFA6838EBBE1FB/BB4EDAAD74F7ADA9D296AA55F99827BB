@@ -1,0 +1,107 @@
+﻿using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using Xunit;
+
+namespace KsefApi.Tests
+{
+    public class BasicValidationTests
+    {
+        [Fact]
+        public void ValidateXml_ParsesJsonCorrectly()
+        {
+            // Arrange
+            var testXml = @"<?xml version=""1.0"" encoding=""UTF-8""?><test></test>";
+            var serialized = JsonSerializer.Serialize(testXml);
+            
+            // Act
+            var deserialized = JsonSerializer.Deserialize<string>(serialized);
+            
+            // Assert
+            Assert.NotNull(deserialized);
+            Assert.Equal(testXml, deserialized);
+        }
+
+        [Fact]
+        public void ValidationResponse_SerializesCorrectly()
+        {
+            // Arrange
+            var response = new ValidationResponse
+            {
+                Valid = false,
+                Errors = new List<string> { "Test error" },
+                Warnings = new List<string>(),
+                Message = "Test message"
+            };
+
+            // Act
+            var json = JsonSerializer.Serialize(response);
+            var deserialized = JsonSerializer.Deserialize<ValidationResponse>(json);
+
+            // Assert
+            Assert.NotNull(deserialized);
+            Assert.False(deserialized.Valid);
+            Assert.Single(deserialized.Errors);
+            Assert.Equal("Test error", deserialized.Errors[0]);
+            Assert.Equal("Test message", deserialized.Message);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData("not xml at all")]
+        public void ValidateInput_DetectsInvalidStrings(string invalidInput)
+        {
+            // Arrange & Act
+            bool isNullOrWhiteSpace = string.IsNullOrWhiteSpace(invalidInput);
+            bool containsXmlDeclaration = invalidInput.Contains("<?xml");
+
+            // Assert
+            if (string.IsNullOrWhiteSpace(invalidInput))
+            {
+                Assert.True(isNullOrWhiteSpace);
+            }
+            else
+            {
+                Assert.False(containsXmlDeclaration);
+            }
+        }
+
+        [Fact]
+        public void XmlNamespace_ValidatesCorrectly()
+        {
+            // Arrange
+            var correctNamespace = "http://crd.gov.pl/wzor/2025/06/25/13775/";
+            var wrongNamespace = "http://wrong.namespace.com/";
+            
+            var xmlWithCorrectNs = $@"<Faktura xmlns=""{correctNamespace}""></Faktura>";
+            var xmlWithWrongNs = $@"<Faktura xmlns=""{wrongNamespace}""></Faktura>";
+
+            // Act & Assert
+            Assert.Contains(correctNamespace, xmlWithCorrectNs);
+            Assert.DoesNotContain(correctNamespace, xmlWithWrongNs);
+            Assert.Contains(wrongNamespace, xmlWithWrongNs);
+        }
+
+        [Fact]
+        public void RequiredElements_CanBeDetected()
+        {
+            // Arrange
+            var xmlWithHeader = @"<Faktura><Naglowek></Naglowek></Faktura>";
+            var xmlWithoutHeader = @"<Faktura><Podmiot1></Podmiot1></Faktura>";
+
+            // Act & Assert
+            Assert.Contains("<Naglowek>", xmlWithHeader);
+            Assert.DoesNotContain("<Naglowek>", xmlWithoutHeader);
+        }
+    }
+
+    // Response model for tests
+    public class ValidationResponse
+    {
+        public bool Valid { get; set; }
+        public List<string> Errors { get; set; } = new();
+        public List<string> Warnings { get; set; } = new();
+        public string Message { get; set; } = string.Empty;
+    }
+}

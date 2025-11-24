@@ -1,0 +1,1149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<head>
+    <META http-equiv="Content-Type" content="text/html; charset=utf-16">
+    <title>
+        e-FAKTURA KSeF
+    </title>
+    <style type="text/css">
+        body {
+            background-color: #FFFFFF;
+            color: #000000;
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            margin: 0;
+            padding: 1px 5%;
+        }
+
+        div.body {
+            width: 100%;
+            min-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div.deklaracja,
+        div.zalacznik {
+            margin: 2em 0;
+        }
+
+        .tlo-zalacznika {
+            background-color: #FFFFDD;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        .normalna,
+        .tytul-sekcja-blok {
+            width: 100%;
+        }
+
+        .naglowek {
+            background-color: #CCDDFF;
+        }
+
+        .kod-formularza {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .naglowek .wartosc {
+            font-weight: bold;
+        }
+
+        .tytul {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .tytulformularza {
+            font-size: xx-large;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .okres {
+            display: block;
+            margin: 1em;
+            font-size: 1.2em;
+            text-align: center;
+            vertical-align: top;
+            clear: both;
+        }
+
+        .data {
+            border: 1px solid black;
+            padding: 2px 1.5em;
+            background-color: white;
+            font-weight: bold;
+            margin: 0 2em;
+        }
+
+        .obok-daty {
+            text-align: right;
+            display: inline-block;
+            width: 45%;
+        }
+
+        .objasnienie {
+            border: 2px solid black;
+            padding: 0.25em 0.5em;
+            font-size: 0.8em;
+        }
+
+        .zalacznik-objasnienie {
+            background-color: #DDDDDD;
+            border: 2px solid black;
+            font-size: 0.8em;
+            width: 99.5%;
+        }
+
+        .prawne {
+            background-color: #DDDDDD;
+            border: 2px solid black;
+            font-size: 0.8em;
+        }
+
+        .prawne .etykieta {
+            min-width: 9em;
+        }
+
+        .wypelniane {
+            background-color: white;
+        }
+
+        .niewypelniane,
+        .ukryte {
+            background-color: #DDDDDD;
+        }
+
+        .pouczenia td {
+            background-color: white;
+            border: 2px solid black;
+        }
+
+        .tytul-sekcja-blok {
+            background-color: #DDDDFF;
+            border: 2px solid black;
+            text-transform: uppercase;
+            width: 99.5%;
+        }
+
+
+        h1 {
+            font-size: 1.4em;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            text-align: left;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        h3 {
+            text-align: left;
+            font-size: 1.2em;
+            font-weight: normal;
+        }
+
+        h4 {
+            text-align: left;
+            font-size: 1em;
+            font-weight: normal;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 1px;
+        }
+
+        .wypelniane {
+            border: 1px solid black;
+            font-size: 1.2em;
+            padding: 1px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+
+        .puste {
+            background-color: #DDDDDD;
+            border: 1px solid black;
+            font-size: 0.8em;
+            padding: 1px;
+            height: 2em;
+            vertical-align: top;
+        }
+
+        .puste2 {
+            background-color: #DDDDDD;
+            border: 1px solid black;
+            font-size: 1.2em;
+            padding: 1px;
+            height: 2em;
+            text-align: center;
+        }
+
+        .niewypelnianeopisy {
+            background-color: #DDDDDD;
+            border: 1px solid black;
+            font-size: 0.8em;
+            padding: 1px;
+            height: 2em;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .center {
+            background-color: #DDDDDD;
+            border: 1px solid black;
+            font-size: 0.8em;
+            padding: 1px;
+            height: 2em;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .niewypelniane,
+        .pouczenia td,
+        .taknie {
+            border: 1px solid black;
+            font-size: 0.8em;
+            font-weight: bold;
+            padding: 1px;
+            height: 2em;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .kwota {
+            text-align: right;
+            padding-right: 0.2em;
+        }
+
+        .opisrubryki {
+            font-size: 0.5em;
+            margin-bottom: 0.2em;
+            text-align: left;
+            font-weight: bold;
+            text-transform: none;
+        }
+
+        .opis-tekstowy {
+            font-size: 0.7em;
+            margin-bottom: 0.2em;
+            font-weight: bold;
+            text-transform: none;
+        }
+
+        .czcionka td,
+        .czcionka th {
+            font-size: 0.9em;
+            height: 1em;
+        }
+
+        .nazwa-dla-kodu {
+            font-size: 0.9em;
+        }
+
+        table.normalna,
+        table.pouczenia,
+        table.sposob-opodatkowania {
+            width: 100%;
+            margin: 0;
+            border: 1px solid black;
+        }
+
+        h2.tekst {
+            text-align: center;
+            margin: 0.5em auto;
+        }
+
+        .pouczenie {
+            padding: 0.5em 2em;
+            text-align: center;
+        }
+
+        p {
+            padding: 0;
+            margin: 0.2em 0;
+        }
+
+        .objasnienie ol {
+            list-style-type: decimal;
+        }
+
+        .objasnienie ol ul {
+            list-style-type: disc;
+        }
+
+        .taknie {
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .normalna-tekstowa {
+            width: 100%;
+            border: 0px
+        }
+
+        .tekst {
+            text-align: center;
+        }
+
+        .wartosc {
+            vertical-align: top;
+        }
+
+        .miesiac {
+            border: 1px solid black;
+            font-size: 0.8em;
+            font-weight: bold;
+            padding: 1px;
+            height: 2em;
+            vertical-align: middle;
+            text-align: center;
+            background-color: #DDDDDD;
+        }
+
+        .podtytul {
+            font-size: medium;
+        }
+
+        .tytulzalacznika {
+            font-size: x-large;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .opis {
+            font-size: 1em;
+            padding: 4px;
+        }
+
+        .opis-tabela {
+            font-size: 1em;
+            padding: 4px;
+            border: 0;
+        }
+
+        .dodatkowe {
+            background-color: white;
+            border: 0;
+        }
+
+        .wypunktowane {
+            font-size: 1em;
+            padding: 1px;
+            vertical-align: top;
+        }
+
+        .tlo-formularza,
+        .tlo-zalacznika {
+            padding-bottom: 1px;
+        }
+
+        @media print {
+            .lamstrone {
+                page-break-before: always;
+            }
+
+            .sekcja {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+    <style type="text/css" xmlns:tns="http://crd.gov.pl/wzor/2025/06/25/13775/">
+        .tlo-formularza {
+            background-color: #D3D3D3;
+        }
+
+        table.wrapping,
+        .break-word {
+            white-space: normal !important;
+            word-wrap: break-word;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        .word-break {
+            width: 100%;
+            word-break: break-all;
+        }
+
+        .tlo-zalacznika {
+            background-color: #D3D3D3;
+        }
+
+        .lewa {
+            border: 1px solid black;
+            font-size: 1.2em;
+            padding: 1px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .srodek {
+            border: 1px solid black;
+            font-size: 1.2em;
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .prawa {
+            border: 1px solid black;
+            font-size: 1.2em;
+            padding: 1px;
+            vertical-align: top;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="deklaracja" xmlns:tns="http://crd.gov.pl/wzor/2025/06/25/13775/">
+        <div class="naglowek">
+            <table>
+                <tr>
+                    <td colspan="2"><span class="kod-formularza">FA</span> <span class="wariant">(3)</span></td>
+                </tr>
+                <tr>
+                    <td class="etykieta">Kod systemowy <b>FA (3)</b></td>
+                </tr>
+            </table>
+        </div>
+        <div style="text-align:left">
+            <b>Krajowy System <font style="color:red">e</font>-Faktur (KS<font style="color:red">e</font>F)</b></div>
+        <div class="tlo-formularza">
+            <h1 class="nazwa">Faktura podstawowa</h1>
+        </div>
+        <table class="break-word" width="100%">
+            <tr>
+                <td>
+                    Kod waluty (ISO 4217):
+                    <b>PLN</b>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Kolejny numer faktury, nadany w ramach jednej lub więcej serii, który w sposób jednoznaczny
+                    identyfikuje fakturę:
+                    <b>FV2026/02/150</b>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Data wystawienia, z zastrzeżeniem art. 106na ust. 1 ustawy:
+                    <b>2026-02-28</b>
+                </td>
+            </tr>
+            <tr>
+                <td>Miejsce wystawienia faktury:
+                    <b>Warszawa</b>
+                </td>
+            </tr>
+            <tr>
+                <td>Data początkowa okresu, którego dotyczy faktura: <b>2026-01-01</b><br> Data końcowa okresu, którego dotyczy faktura - data dokonania lub zakończenia dostawy towarów lub wykonania usługi:
+                    <b>2026-02-28</b></td>
+            </tr><br><br>
+        </table><br>
+        <table class="break-word">
+            <tr>
+                <td style="width:50%"><b>SPRZEDAWCA</b></td>
+                <td style="width:50%"><b>NABYWCA</b><br><br></td>
+            </tr>
+            <tr>
+                <td style="width:50%"></td>
+                <td style="width:50%"></td>
+            </tr>
+            <tr>
+                <td style="width:50%">NIP: <b>9999999999</b></td>
+                <td style="width:50%">NIP: <b>1111111111</b></td>
+            </tr>
+            <tr>
+                <td style="width:50%">Imię i nazwisko lub nazwa: Elektrownia S.A.</td>
+                <td style="width:50%">Imię i nazwisko lub nazwa: F.H.U. Jan Kowalski</td>
+            </tr>
+            <tr>
+                <td style="width:50%"><b>Adres podatnika</b></td>
+                <td style="width:50%"><b>Adres nabywcy</b></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="width:50%">Kod kraju: PL 
+                    <span class="nazwa-dla-kodu">(POLSKA)</span>
+                </td>
+                <td style="width:50%">Kod kraju: PL 
+                    <span class="nazwa-dla-kodu">(POLSKA)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:50%">Adres: ul. Kwiatowa 1 m. 2 00-001 Warszawa</td>
+                <td style="width:50%">Adres: ul. Polna 1 00-001 Warszawa</td>
+            </tr>
+            <tr>
+                <td style="width:50%"></td>
+                <td style="width:50%"></td>
+            </tr>
+            <tr></tr>
+            <tr></tr>
+            <tr>
+                <td style="width:50%"></td>
+                <td style="width:50%"></td>
+            </tr>
+            <tr>
+                <td style="width:50%"></td>
+                <td style="width:50%"></td>
+            </tr>
+            <tr>
+                <td style="width:50%"><b>Dane kontaktowe podatnika</b></td>
+                <td style="width:50%"><b>Dane kontaktowe nabywcy</b></td>
+            </tr>
+            <tr>
+                <td style="width:50%">Adres e-mail: elektrownia@elektrownia.pl, </td>
+                <td style="width:50%">Adres e-mail: jan@kowalski.pl, </td>
+            </tr>
+            <tr>
+                <td style="width:50%">Numer telefonu: 667444555, </td>
+                <td style="width:50%">Numer telefonu: 555777999, </td>
+            </tr>
+            <tr>
+                <td style="width:50%"></td>
+            </tr>
+            <tr>
+                <td style="width:50%"></td>
+                <td style="width:50%">Numer klienta: 99999999</td>
+            </tr>
+            <tr>
+                <td style="width:50%"></td>
+                <td style="width:50%">Faktura dotyczy jednostki podrzędniej JST:
+                    Nie
+                </td>
+            </tr>
+            <tr>
+                <td style="width:50%"></td>
+                <td style="width:50%">Faktura dotyczy członka GV:
+                    Nie
+                </td>
+            </tr>
+        </table><br><br>
+        <table class="white-space">
+            <tr>
+                <td class="niewypelniane">Numer wiersza faktury</td>
+                <td class="niewypelniane">Uniwersalny unikalny numer wiersza faktury</td>
+                <td class="niewypelniane">Nazwa (rodzaj) towaru lub usługi</td>
+                <td class="niewypelniane">Indeks</td>
+                <td class="niewypelniane">Jednostka miary</td>
+                <td class="niewypelniane">Ilość</td>
+                <td class="niewypelniane">Cena jednostkowa</td>
+                <td class="niewypelniane">Opusty i obniżki cen</td>
+                <td class="niewypelniane">Wartość sprzedaży</td>
+                <td class="niewypelniane">Kwota VAT</td>
+                <td class="niewypelniane">Stawka podatku</td>
+                <td class="niewypelniane">Stawka podatku od wartości dodanej</td>
+                <td class="niewypelniane">Data dokonania lub zakończenia dostawy towarów lub wykonania usługi lub data
+                    otrzymania zapłaty</td>
+                <td class="niewypelniane">Klasyfikacja</td>
+                <td class="niewypelniane">Kwota podatku akcyzowego zawarta w cenie towaru</td>
+                <td class="niewypelniane">Oznaczenie dotyczące dostawy towarów i świadczenia usług lub procedury</td>
+                <td class="niewypelniane">Kurs waluty z Działu VI ustawy</td>
+                <td class="niewypelniane">Znacznik dla towaru lub usługi z załącznika nr 15 do ustawy</td>
+                <td class="niewypelniane">Znacznik stanu przed korektą</td>
+            </tr>
+            <tr>
+                <td class="srodek" width="auto">1</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">Razem za energię czynną</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="prawa" width="auto"></td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="prawa" width="auto">18.00 netto
+                </td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="srodek" width="auto">23%</td>
+                <td class="srodek" width="auto"></td>
+                <td class="srodek" width="auto">
+                </td>
+                <td class="lewa" width="auto"></td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="srodek" width="auto"></td>
+                <td class="prawa">
+                </td>
+                <td class="srodek"></td>
+                <td class="srodek"></td>
+            </tr>
+            <tr>
+                <td class="srodek" width="auto">2</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">Razem za usługi dystrybucji</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="prawa" width="auto"></td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="prawa" width="auto">25.60 netto
+                </td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="srodek" width="auto">23%</td>
+                <td class="srodek" width="auto"></td>
+                <td class="srodek" width="auto">
+                </td>
+                <td class="lewa" width="auto"></td>
+                <td class="prawa" width="auto">
+                </td>
+                <td class="srodek" width="auto"></td>
+                <td class="prawa">
+                </td>
+                <td class="srodek"></td>
+                <td class="srodek"></td>
+            </tr>
+        </table><br><b>Podsumowanie wg stawek</b><br><br>
+        <table class="break-word" width="60%">
+            <tr>
+                <td class="niewypelniane" width="12%">Stawka VAT</td>
+                <td class="niewypelniane" width="12%">Suma wartości sprzedaży netto</td>
+                <td class="niewypelniane" width="12%">Kwota podatku od sumy wartości sprzedaży netto</td>
+                <td class="niewypelniane" width="12%">Kwota podatku od sumy wartości sprzedaży netto, przeliczona
+                    zgodnie z przepisami Działu VI ustawy</td>
+                <td class="niewypelniane" width="12%">Kwota podatku od wartości dodanej w przypadku procedury
+                    szczególnej, o której mowa w dziale XII w rozdziale 6a ustawy</td>
+                <td>
+                    <table width="10%">
+                        <tbody>
+                            <tr>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="wypelniane" width="12%">22% lub 23%</td>
+                <td class="prawa" width="12%">43.60</td>
+                <td class="prawa" width="12%">10.03</td>
+                <td class="prawa" width="12%">
+                </td>
+                <td class="niewypelniane" width="12%"></td>
+            </tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+        </table>
+        <table>
+            <tr>
+                <td><br><b>
+					Kwota należności ogółem: 
+					53.63 PLN</b><br><br></td>
+            </tr>
+        </table><b>Warunki płatności</b><br><br>
+        <table class="break-word">
+            <tr>
+                <td class="niewypelniane" width="20%">Termin płatności</td>
+                <td class="niewypelniane" width="80%">Opis terminu płatności</td>
+            </tr>
+            <tr>
+                <td class="srodek" width="20%">2026-03-15</td>
+                <td class="wypelniane" width="80%">
+                </td>
+            </tr>
+        </table><br>
+        <table class="normalna">
+            <tr>
+                <td class="niewypelniane" width="20%">Forma płatności</td>
+            </tr>
+            <tr>
+                <td class="wypelniane" width="20%">Przelew</td>
+            </tr>
+        </table><br><b>Rachunek bankowy</b>
+        <table class="break-word">
+            <tr><br>
+                <td class="niewypelniane" width="22%">Pełny numer rachunku<br>Kod SWIFT</td>
+                <td class="niewypelniane" width="16%">Rachunek własny banku</td>
+                <td class="niewypelniane" width="31%">Nazwa</td>
+                <td class="niewypelniane" width="31%">Opis rachunku</td>
+            </tr>
+            <tr>
+                <td class="wypelniane" width="22%">73111111111111111111111111<br></td>
+                <td class="wypelniane" width="16%"></td>
+                <td class="wypelniane" width="31%">Bank Bankowości Bankowej S. A.</td>
+                <td class="wypelniane" width="31%">PLN</td>
+            </tr>
+        </table><br><b>Adnotacje</b><br><br>
+        <table class="break-word">
+            <tr>
+                <td class="niewypelniane" width="25%">Metoda kasowa</td>
+                <td class="niewypelniane" width="25%">Samofakturowanie</td>
+                <td class="niewypelniane" width="25%">Odwrotne obciążenie</td>
+                <td class="niewypelniane" width="25%">Mechanizm podzielonej płatności</td>
+            </tr>
+            <tr>
+                <td class="wypelniane, srodek" width="25%"><input type="checkbox" checked disabled><b>2. Nie</b></td>
+                <td class="wypelniane, srodek" width="25%"><input type="checkbox" checked disabled><b>2. Nie</b></td>
+                <td class="wypelniane, srodek" width="25%"><input type="checkbox" checked disabled><b>2. Nie</b></td>
+                <td class="wypelniane, srodek" width="25%"><input type="checkbox" checked disabled><b>2. Nie</b></td>
+            </tr>
+        </table><br>
+					Znacznik braku dostawy towarów lub świadczenia usług zwolnionych od podatku na podstawie art. 43 ust. 1, art. 113 ust. 1 i 9 ustawy albo przepisów wydanych na podstawie art. 82 ust. 3 ustawy lub na podstawie innych przepisów -
+        <input type="checkbox" checked disabled><b>1. Tak</b><br><br>
+        <div>Brak wewnątrzwspólnotowej dostawy nowych środków transportu -
+            <input type="checkbox" checked disabled><b>1. Tak</b>
+        </div><br><br>
+        <div>VAT: Faktura WE uproszczona na mocy art. 135-138 ustawy o ptu. Podatek z tytułu dokonanej dostawy zostanie
+            rozliczony przez ostatniego w kolejności podatnika podatku od wartości dodanej:
+            <b><input type="checkbox" checked disabled>2. Nie</b>
+        </div><br>
+        <div>Brak wystąpienia procedur marży, o których mowa w art. 119 lub art. 120 ustawy:
+            <b><input type="checkbox" checked disabled>1. Tak</b>
+        </div><br><br>
+        <table><b>Dodatkowy opis</b><br></table><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" colspan="3">Pola przeznaczone dla wykazywania dodatkowych danych na fakturze,
+                    w tym wymaganych przepisami prawa, dla których nie przewidziano innych pól/elementów</td>
+            </tr>
+            <tr>
+                <td class="niewypelniane" width="20%">Numer wiersza faktury lub zamówienia, jeśli informacja odnosi się
+                    wyłącznie do danej pozycji faktury</td>
+                <td class="niewypelniane" width="20%">Klucz</td>
+                <td class="niewypelniane" width="20%">Wartość</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="20%">
+                </td>
+                <td class="lewa" width="20%">Informacja o akcyzie</td>
+                <td class="lewa" width="20%">Od 20 kWh energii elektrycznej czynnej naliczono akcyzę w kwocie 0,10 zł
+                </td>
+            </tr>
+        </table><br><br><br><b>Dodatkowe rozliczenia na fakturze</b><br><br>
+        <table>
+            <tr>
+                <td class="niewypelniane">Obciążenia</td>
+            </tr>
+        </table>
+        <table class="break-word">
+            <tr>
+                <td class="niewypelniane" width="80%">Powód obciążenia</td>
+                <td class="niewypelniane" width="20%">Kwota doliczona do kwoty należności ogółem</td>
+            </tr>
+            <tr>
+                <td class="wypelniane" width="80%">Odsetki</td>
+                <td class="prawa" width="20%">0.00</td>
+            </tr>
+            <tr>
+                <td class="niewypelniane" width="20%">Suma obciążeń</td>
+                <td class="prawa" width="80%">0.00</td>
+            </tr>
+        </table><br>
+        <table>
+            <tr>
+                <td class="niewypelniane">Odliczenia</td>
+            </tr>
+        </table>
+        <table class="break-word">
+            <tr>
+                <td class="niewypelniane" width="80%">Powód odliczenia</td>
+                <td class="niewypelniane" width="20%">Kwota odliczona od kwoty należności ogółem</td>
+            </tr>
+            <tr>
+                <td class="wypelniane" width="80%">Nadpłata</td>
+                <td class="prawa" width="20%">0.00</td>
+            </tr>
+            <tr>
+                <td class="niewypelniane" width="20%">Suma odliczeń</td>
+                <td class="prawa" width="80%">0.00</td>
+            </tr>
+        </table><br><b>Do zapłaty / Do rozliczenia</b><br><br>
+        <table class="break-word">
+            <tr>
+                <td class="niewypelniane" width="20%">Kwota należności do zapłaty równa kwocie należności ogółem
+                    powiększonej o sumę obciążeń i pomniejszonej o sumę odliczeń.</td>
+                <td class="prawa" width="80%">53.63</td>
+            </tr>
+        </table><br><br><br>
+        <div><b>Pozostałe dane na fakturze</b></div><br>
+        <table class="break-word">
+            <tr>
+                <td>1. Kapiał zakładowy 5 000 000;</td>
+            </tr>
+        </table><br>
+        <div><b>Numery podmiotu lub grupy podmiotów w innych rejestrach i bazach danych</b></div><br>
+        <table class="break-word">
+            <tr>
+                <td class="niewypelniane" colspan="2"> (1) </td>
+            </tr>
+        </table>
+        <table class="break-word">
+            <tr>
+                <td class="niewypelniane" width="10%">KRS</td>
+                <td class="wypelniane" width="90%">0000099999</td>
+            </tr>
+            <tr>
+                <td class="niewypelniane" width="10%">REGON</td>
+                <td class="wypelniane" width="90%">999999999</td>
+            </tr>
+            <tr>
+                <td class="niewypelniane" width="10%">BDO</td>
+                <td class="wypelniane" width="90%">000099999</td>
+            </tr>
+        </table><br><br>
+        <div align="center"><a
+                href="https://www.gov.pl/web/kas/krajowy-system-e-faktur"><b>Krajowy System <font style="color:red">e</font>-Faktur</b></a>
+        </div><br><br>
+        <div class="tlo-zalacznika">
+            <h1 class="nazwa">Załącznik do faktury VAT</h1>
+        </div><br><br>
+        <div><b>Szczegółowe dane załącznika  (1) </b></div><br>
+        <div>
+            Nagłówek bloku danych: <b></b></div><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" width="50%">Klucz</td>
+                <td class="niewypelniane" width="50%">Wartość</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Miejsce poboru energii</td>
+                <td class="lewa" width="50%">ul. Polna 1, 00-001 Warszawa</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Kod PPE</td>
+                <td class="lewa" width="50%">999999999999999999</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Nr kontrahenta (odbiorcy)</td>
+                <td class="lewa" width="50%">99999999</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Za okres od</td>
+                <td class="lewa" width="50%">2026-02-01</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Za okres do</td>
+                <td class="lewa" width="50%">2026-02-28</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Grupa taryfowa</td>
+                <td class="lewa" width="50%">G11</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Energia zużyta w roku 2025</td>
+                <td class="lewa" width="50%">999 kWh</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Energia zużyta w analogicznym okresie poprzedniego roku kalendarzowego</td>
+                <td class="lewa" width="50%">118 kWh</td>
+            </tr>
+        </table><br><br>
+        <div>
+            Tabela
+        </div><br>
+        <table class="break-word" width="100%">
+            <div><b>Odczyty</b></div><br>
+            <tr>
+                <td class="niewypelniane" width="50%">Klucz</td>
+                <td class="niewypelniane" width="50%">Wartość</td>
+            </tr>
+        </table><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" width="auto">Licznik/Strefa</td>
+                <td class="niewypelniane" width="auto">Data</td>
+                <td class="niewypelniane" width="auto">Wskazanie bieżące</td>
+                <td class="niewypelniane" width="auto">Wskazanie poprzednie</td>
+                <td class="niewypelniane" width="auto">Mnożna</td>
+                <td class="niewypelniane" width="auto">Ilość</td>
+                <td class="niewypelniane" width="auto">Sposób odczytu</td>
+                <td class="niewypelniane" width="auto">Straty</td>
+                <td class="niewypelniane" width="auto">Razem</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Licznik rozliczeniowy energii czynnej nr 99999999</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">całodobowa</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">1020</td>
+                <td class="lewa" width="auto">1000</td>
+                <td class="lewa" width="auto">1</td>
+                <td class="lewa" width="auto">20</td>
+                <td class="lewa" width="auto">Fizyczny</td>
+                <td class="lewa" width="auto">0</td>
+                <td class="lewa" width="auto">20</td>
+            </tr>
+        </table><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" colspan="20">Podsumowania tabeli</td>
+            </tr>
+        </table>
+        <table class="break-word" width="100%">
+            <div><b>Rozliczenie - sprzedaż energii</b></div><br>
+            <tr>
+                <td class="niewypelniane" width="50%">Klucz</td>
+                <td class="niewypelniane" width="50%">Wartość</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="50%">Informacja o akcyzie</td>
+                <td class="lewa" width="50%">Od 20 kWh energii elektrycznej czynnej naliczono akcyzę w kwocie 0,10 zł
+                </td>
+            </tr>
+        </table><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" width="auto">Opis/Strefa</td>
+                <td class="niewypelniane" width="auto">j. m.</td>
+                <td class="niewypelniane" width="auto">Ilość</td>
+                <td class="niewypelniane" width="auto">Cena jedn. netto (zł)</td>
+                <td class="niewypelniane" width="auto">Należność netto (zł)</td>
+                <td class="niewypelniane" width="auto">Stawka VAT(%)</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Energia elektryczna czynna</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">całodobowa</td>
+                <td class="lewa" width="auto">kWh</td>
+                <td class="lewa" width="auto">20</td>
+                <td class="lewa" width="auto">0.9000</td>
+                <td class="lewa" width="auto">18.00</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+        </table><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" colspan="20">Podsumowania tabeli</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Ogółem wartość - sprzedaż energii:</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">18.00</td>
+                <td class="lewa" width="auto">
+                </td>
+            </tr>
+        </table>
+        <table class="break-word" width="100%">
+            <div><b>Rozliczenie - usługa dystrybucji energii</b></div><br>
+            <tr>
+                <td class="niewypelniane" width="50%">Klucz</td>
+                <td class="niewypelniane" width="50%">Wartość</td>
+            </tr>
+        </table><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" width="auto">Opis/Strefa</td>
+                <td class="niewypelniane" width="auto">j. m.</td>
+                <td class="niewypelniane" width="auto">Data</td>
+                <td class="niewypelniane" width="auto">Ilość</td>
+                <td class="niewypelniane" width="auto">Ilość m-cy</td>
+                <td class="niewypelniane" width="auto">Współczynniki</td>
+                <td class="niewypelniane" width="auto">Cena jedn. netto (zł)</td>
+                <td class="niewypelniane" width="auto">Należność netto (zł)</td>
+                <td class="niewypelniane" width="auto">Stawka VAT(%)</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata stała sieciowa - układ 1-fazowy</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">zł/mc</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">2</td>
+                <td class="lewa" width="auto">0.0000</td>
+                <td class="lewa" width="auto">7.3000</td>
+                <td class="lewa" width="auto">14.60</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata przejściowa &lt;500 kWh</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">zł/mc</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">2</td>
+                <td class="lewa" width="auto">0.0000</td>
+                <td class="lewa" width="auto">0.0300</td>
+                <td class="lewa" width="auto">0.06</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata mocowa &lt;500 kWh</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">zł/mc</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">2</td>
+                <td class="lewa" width="auto">0.0000</td>
+                <td class="lewa" width="auto">0.0000</td>
+                <td class="lewa" width="auto">0.00</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata zmienna sieciowa</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">całodobowa</td>
+                <td class="lewa" width="auto">kWh</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">20</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">0.2500</td>
+                <td class="lewa" width="auto">5.00</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata jakościowa</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">całodobowa</td>
+                <td class="lewa" width="auto">kWh</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">20</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">0.0400</td>
+                <td class="lewa" width="auto">0.80</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata OZE</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">całodobowa</td>
+                <td class="lewa" width="auto">kWh</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">20</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">0.0040</td>
+                <td class="lewa" width="auto">0.08</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata kogeneracyjna</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">całodobowa</td>
+                <td class="lewa" width="auto">kWh</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">20</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">0.0030</td>
+                <td class="lewa" width="auto">0.06</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Opłata abonamentowa</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">zł/mc</td>
+                <td class="lewa" width="auto">2026-02-28</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">2</td>
+                <td class="lewa" width="auto">0.0000</td>
+                <td class="lewa" width="auto">2.5000</td>
+                <td class="lewa" width="auto">5.00</td>
+                <td class="lewa" width="auto">23</td>
+            </tr>
+        </table><br>
+        <table class="break-word" width="100%">
+            <tr>
+                <td class="niewypelniane" colspan="20">Podsumowania tabeli</td>
+            </tr>
+            <tr>
+                <td class="lewa" width="auto">Ogółem wartość - usługa dystrybucji:</td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">
+                </td>
+                <td class="lewa" width="auto">25.60</td>
+                <td class="lewa" width="auto">
+                </td>
+            </tr>
+        </table><br>
+        <td class="niewypelnianeopisy">Data i czas wytworzenia faktury: </td>
+        <td class="wypelniane"><b>2026-02-28T00:00:00Z</b></td><br>
+        <table class="break-word">
+            <tr>
+                <td>Nazwa systemu teleinformatycznego, z którego korzysta podatnik:
+                    <b>SamploFaktur</b>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

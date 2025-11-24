@@ -1,0 +1,38 @@
+﻿@KsefApi_HostAddress = http://localhost:32772
+
+# Test endpoints
+GET {{KsefApi_HostAddress}}/weatherforecast/
+Accept: application/json
+### 
+
+#Ping test
+GET {{KsefApi_HostAddress}}/api/ksef/ping/
+Accept: application/json
+### 
+
+#Simple test endpoint
+POST {{KsefApi_HostAddress}}/api/ksef/test/
+Content-Type: application/json
+{
+  "test": "data"
+}
+###
+
+# Check API status and file availability
+GET {{KsefApi_HostAddress}}/api/ksef/status/
+Accept: application/json
+###
+
+# Simple XML validation test (short XML)
+POST {{KsefApi_HostAddress}}/api/ksef/validate/
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\"><Naglowek><KodFormularza kodSystemowy=\"FA (3)\" wersjaSchemy=\"1-0E\">FA</KodFormularza><WariantFormularza>3</WariantFormularza><DataWytworzeniaFa>2026-02-15T09:00:00Z</DataWytworzeniaFa></Naglowek><Podmiot1><DaneIdentyfikacyjne><NIP>1234567890</NIP><Nazwa>Test Company</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>Test Address</AdresL1></Adres></Podmiot1><Podmiot2><DaneIdentyfikacyjne><NIP>9876543210</NIP><Nazwa>Test Client</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>Client Address</AdresL1></Adres><JST>2</JST><GV>2</GV></Podmiot2><Fa><KodWaluty>PLN</KodWaluty><P_1>2025-01-10</P_1><P_2>TEST/001</P_2><P_15>100.00</P_15><Adnotacje><P_16>2</P_16><P_17>2</P_17><P_18>2</P_18><P_18A>2</P_18A><Zwolnienie><P_19N>1</P_19N></Zwolnienie><NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu><P_23>2</P_23><PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy></Adnotacje><RodzajFaktury>VAT</RodzajFaktury></Fa></Faktura>"
+###
+
+# Simple HTML transformation test
+POST {{KsefApi_HostAddress}}/api/ksef/html/
+Content-Type: application/json
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><Faktura xmlns=\"http://crd.gov.pl/wzor/2025/06/25/13775/\"><Naglowek><KodFormularza kodSystemowy=\"FA (3)\" wersjaSchemy=\"1-0E\">FA</KodFormularza><WariantFormularza>3</WariantFormularza><DataWytworzeniaFa>2025-01-15T09:00:00Z</DataWytworzeniaFa></Naglowek><Podmiot1><DaneIdentyfikacyjne><NIP>1234567890</NIP><Nazwa>Test Company</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>Test Address</AdresL1></Adres></Podmiot1><Podmiot2><DaneIdentyfikacyjne><NIP>9876543210</NIP><Nazwa>Test Client</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>Client Address</AdresL1></Adres><JST>2</JST><GV>2</GV></Podmiot2><Fa><KodWaluty>PLN</KodWaluty><P_1>2025-01-10</P_1><P_2>TEST/001</P_2><P_15>100.00</P_15><Adnotacje><P_16>2</P_16><P_17>2</P_17><P_18>2</P_18><P_18A>2</P_18A><Zwolnienie><P_19N>1</P_19N></Zwolnienie><NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu><P_23>2</P_23><PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy></Adnotacje><RodzajFaktury>VAT</RodzajFaktury></Fa></Faktura>"
+###

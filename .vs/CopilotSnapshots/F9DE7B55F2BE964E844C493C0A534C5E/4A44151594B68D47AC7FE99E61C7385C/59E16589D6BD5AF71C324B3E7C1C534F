@@ -1,0 +1,183 @@
+﻿# KSeF API Validation Tests
+
+## Przegląd testów
+
+Ten pakiet testów obejmuje kompleksową walidację API KSeF, sprawdzając różne przypadki użycia i scenariusze błędów.
+
+## Struktura testów
+
+### 1. KsefValidationTests.cs
+**Podstawowe testy walidacji XML**
+
+**Przypadki pozytywne:**
+- ✅ ValidateXml_ValidMinimalInvoice_ReturnsSuccess
+- ✅ ValidateXml_ValidInvoiceWithMultipleLines_ReturnsSuccess
+
+**Nieprawidłowy XML:**
+- ❌ ValidateXml_MalformedXml_MissingClosingTag_ReturnsError
+- ❌ ValidateXml_MalformedXml_InvalidCharacters_ReturnsError  
+- ❌ ValidateXml_NotXmlContent_ReturnsError
+
+**Brakujące wymagane elementy:**
+- ❌ ValidateXml_MissingRequiredNaglowek_ReturnsError
+- ❌ ValidateXml_MissingRequiredNIP_ReturnsError
+- ❌ ValidateXml_MissingRequiredFaSection_ReturnsError
+- ❌ ValidateXml_MissingRequiredAttributes_ReturnsError
+
+**Nadmiarowe elementy:**
+- ❌ ValidateXml_RedundantElements_ReturnsError
+- ❌ ValidateXml_InvalidNamespace_ReturnsError
+
+**Walidacja typów danych:**
+- ❌ ValidateXml_InvalidDateFormat_ReturnsError
+- ❌ ValidateXml_InvalidNIPFormat_ReturnsError
+- ❌ ValidateXml_InvalidMonetaryFormat_ReturnsError
+
+**Przypadki graniczne:**
+- ❌ ValidateXml_EmptyXml_ReturnsError
+- ✅/❌ ValidateXml_VeryLargeValidXml_ReturnsSuccess
+
+### 2. KsefTransformationTests.cs
+**Testy transformacji XML do HTML**
+- ✅ TransformToHtml_ValidXml_ReturnsHtml
+- ❌ TransformToHtml_MalformedXml_ReturnsError
+
+### 3. KsefStatusTests.cs
+**Testy endpointów diagnostycznych**
+- ✅ GetStatus_ReturnsStatusInfo
+- ✅ Ping_ReturnsSuccess
+- ✅ GetInfo_ReturnsConfigurationInfo
+- ✅ Test_ReturnsOkWithData
+
+### 4. KsefDataDrivenValidationTests.cs
+**Testy sterowane danymi (parametryzowane)**
+- Walidacja różnych formatów nieprawidłowych danych
+- Testowanie brakujących elementów z różnych sekcji
+- Testowanie różnych nieprawidłowych namespace'ów
+- Test wydajności z dużymi dokumentami XML
+
+## Dane testowe
+
+### TestData/
+- `ValidInvoice.xml` - Podstawowa prawidłowa faktura
+- `MalformedXml.xml` - XML z błędami strukturalnymi
+- `MissingRequired.xml` - XML bez wymaganych elementów
+- `RedundantElements.xml` - XML z nadmiarowymi elementami
+
+## Uruchamianie testów
+
+### Opcja 1: Użycie skryptu (Windows)
+```bash
+run-tests.bat
+```
+
+### Opcja 2: Bezpośrednio przez dotnet CLI
+```bash
+# Wszystkie testy
+dotnet test
+
+# Tylko testy walidacji
+dotnet test --filter "FullyQualifiedName~KsefValidationTests"
+
+# Tylko testy transformacji
+dotnet test --filter "FullyQualifiedName~KsefTransformationTests"
+
+# Tylko testy statusu
+dotnet test --filter "FullyQualifiedName~KsefStatusTests"
+
+# Tylko testy sterowane danymi
+dotnet test --filter "FullyQualifiedName~KsefDataDrivenValidationTests"
+
+# Z szczegółowym wyjściem
+dotnet test --logger "console;verbosity=detailed"
+```
+
+### Opcja 3: W Visual Studio
+1. Otwórz Test Explorer (Test → Test Explorer)
+2. Uruchom wszystkie testy lub wybrane grupy
+3. Sprawdź wyniki w oknie Test Explorer
+
+## Wymagania
+
+### Pliki schematu
+Testy wymagają następujących plików w katalogu `Ksef/`:
+- ✅ `schemat.xsd` (wymagany)
+- ✅ `StrukturyDanych_v10-0E.xsd` (wymagany)
+- ✅ `ElementarneTypyDanych_v10-0E.xsd` (wymagany)
+- ✅ `styl.xsl` (wymagany dla testów transformacji)
+- ⚠️ `WspolneSzablonyWizualizacji_v12-0E.xsl` (opcjonalny)
+
+### Instalacja schematów
+```bash
+# Uruchom przed testami
+download-schema.bat
+```
+
+## Oczekiwane rezultaty
+
+### Testy pozytywne (✅)
+- Prawidłowe dokumenty XML powinny przechodzić walidację
+- Endpointy diagnostyczne powinny odpowiadać poprawnie
+- Transformacja HTML powinna działać dla prawidłowych XML
+
+### Testy negatywne (❌)
+- Nieprawidłowe XML powinny być odrzucane z odpowiednimi błędami
+- Brakujące wymagane elementy powinny generować błędy walidacji
+- Nadmiarowe elementy powinny być wykrywane
+- Nieprawidłowe formaty danych powinny być odrzucane
+
+## Interpretacja wyników
+
+### Sukces testu
+```
+✓ Test Name
+  → Czas wykonania: <time>
+```
+
+### Błąd testu
+```
+✗ Test Name
+  → Komunikat błędu
+  → Stack trace
+  → Oczekiwane vs rzeczywiste wartości
+```
+
+### Ostrzeżenia
+- Jeśli brakuje plików schematu, niektóre testy mogą nie działać poprawnie
+- Testy transformacji wymagają pliku `styl.xsl`
+- Duże dokumenty XML mogą powodować długie czasy wykonania
+
+## Rozszerzanie testów
+
+### Dodawanie nowych przypadków testowych
+1. Utwórz nowy plik XML w `Tests/TestData/`
+2. Dodaj metodę testową w odpowiedniej klasie testowej
+3. Użyj `TestDataHelper` do ładowania danych testowych
+
+### Dodawanie nowych typów walidacji
+1. Rozszerz `TestDataHelper.GetInvalidDataTestCases()`
+2. Dodaj nowe przypadki do `KsefDataDrivenValidationTests`
+
+## Troubleshooting
+
+### Błąd: "Test data file not found"
+- Upewnij się, że pliki XML są poprawnie skopiowane do katalogu wyjściowego
+- Sprawdź ustawienia `CopyToOutputDirectory` w pliku projektu
+
+### Błąd: "Nie znaleziono głównego pliku schematu"
+- Uruchom `download-schema.bat`
+- Sprawdź czy katalog `Ksef/` zawiera wymagane pliki
+
+### Długie czasy wykonania
+- Zmniejsz rozmiar testowych dokumentów XML
+- Pomiń testy wydajności: `--filter "FullyQualifiedName!~Performance"`
+
+## Metryki testów
+
+| Kategoria | Liczba testów | Opis |
+|-----------|---------------|------|
+| Walidacja podstawowa | 15+ | Prawidłowe i nieprawidłowe XML |
+| Transformacja | 2+ | Konwersja XML→HTML |
+| Status/Health | 4+ | Endpointy diagnostyczne |
+| Sterowane danymi | 20+ | Parametryzowane przypadki testowe |
+| **Łącznie** | **40+** | **Kompleksowe pokrycie** |

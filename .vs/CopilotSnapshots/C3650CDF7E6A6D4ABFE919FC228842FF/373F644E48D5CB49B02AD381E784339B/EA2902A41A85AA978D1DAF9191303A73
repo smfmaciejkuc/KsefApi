@@ -1,0 +1,19 @@
+﻿@echo off
+echo Pobieranie schematu StrukturyDanych_v10-0E.xsd z serwera gov.pl...
+echo.
+
+curl -o "Ksef\StrukturyDanych_v10-0E.xsd" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd"
+
+if %ERRORLEVEL% EQU 0 (
+    echo.
+    echo Schemat został pobrany pomyślnie!
+    echo Lokalizacja: Ksef\StrukturyDanych_v10-0E.xsd
+) else (
+    echo.
+    echo Błąd podczas pobierania schematu.
+    echo Spróbuj pobrać plik ręcznie z:
+    echo http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd
+    echo i zapisać go jako Ksef\StrukturyDanych_v10-0E.xsd
+)
+
+pause

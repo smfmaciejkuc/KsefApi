@@ -1,0 +1,221 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml;
+using System.Xml.Xsl;
+using System.Xml.Schema;
+
+namespace KsefApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class KsefController : ControllerBase
+    {
+        private readonly IWebHostEnvironment _env;
+
+        public KsefController(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+
+        [HttpPost("validate")]
+        public async Task<IActionResult> ValidateXml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var schemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "schemat.xsd");
+            
+            // Check if the external schema dependency exists locally
+            var externalSchemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "StrukturyDanych_v10-0E.xsd");
+            
+            var errors = new List<string>();
+            var warnings = new List<string>();
+
+            if (!System.IO.File.Exists(externalSchemaPath))
+            {
+                warnings.Add("Brak pliku schematu StrukturyDanych_v10-0E.xsd. Niektóre typy z gov.pl mogą nie być dostępne dla pełnej walidacji.");
+            }
+
+            try
+            {
+                var settings = new XmlReaderSettings();
+                
+                // Load the main schema
+                if (System.IO.File.Exists(schemaPath))
+                {
+                    settings.Schemas.Add(null, schemaPath);
+                    settings.ValidationType = ValidationType.Schema;
+                    settings.ValidationFlags = XmlSchemaValidationFlags.ProcessInlineSchema |
+                                             XmlSchemaValidationFlags.ProcessSchemaLocation |
+                                             XmlSchemaValidationFlags.ReportValidationWarnings;
+
+                    settings.ValidationEventHandler += (s, e) =>
+                    {
+                        if (e.Severity == XmlSeverityType.Error)
+                            errors.Add($"Błąd walidacji: {e.Message}");
+                        else
+                            warnings.Add($"Ostrzeżenie walidacji: {e.Message}");
+                    };
+
+                    // Try to resolve external schema references
+                    settings.XmlResolver = new LocalSchemaResolver(_env.ContentRootPath);
+                }
+                else
+                {
+                    errors.Add($"Nie znaleziono pliku schematu: {schemaPath}");
+                }
+
+                // Validate XML against schema
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent), settings);
+                
+                // Read through the entire document to trigger validation
+                while (xmlReader.Read()) { }
+            }
+            catch (XmlException ex)
+            {
+                errors.Add($"Błąd XML: {ex.Message}");
+            }
+            catch (XmlSchemaException ex)
+            {
+                errors.Add($"Błąd schematu: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Błąd: {ex.Message}");
+            }
+
+            var result = new 
+            { 
+                valid = !errors.Any(), 
+                errors,
+                warnings,
+                message = !errors.Any() ? "XML jest poprawny" : "XML zawiera błędy"
+            };
+
+            if (errors.Any())
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("html")]
+        public async Task<IActionResult> TransformToHtml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+
+            try
+            {
+                var transform = new XslCompiledTransform();
+                transform.Load(xslPath);
+
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+                using var sw = new StringWriter();
+                transform.Transform(xmlReader, null, sw);
+
+                return Content(sw.ToString(), "text/html");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Błąd transformacji XML do HTML", details = ex.Message });
+            }
+        }
+
+        // Helper method for transforming XML content to HTML
+        private async Task<IActionResult> TransformXmlToHtml(string xmlContent)
+        {
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+
+            try
+            {
+                var transform = new XslCompiledTransform();
+                transform.Load(xslPath);
+
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+                using var sw = new StringWriter();
+                transform.Transform(xmlReader, null, sw);
+
+                return Content(sw.ToString(), "text/html");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Błąd transformacji XML do HTML", details = ex.Message });
+            }
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadXml(IFormFile file)
+        {
+            using var reader = new StreamReader(file.OpenReadStream());
+            var xml = await reader.ReadToEndAsync();
+            return await TransformXmlToHtml(xml);
+        }
+    }
+
+    // Custom XML resolver to handle local schema files
+    public class LocalSchemaResolver : XmlResolver
+    {
+        private readonly string _basePath;
+
+        public LocalSchemaResolver(string basePath)
+        {
+            _basePath = basePath;
+        }
+
+        public override object GetEntity(Uri absoluteUri, string role, Type ofObjectToReturn)
+        {
+            try
+            {
+                // Handle gov.pl schema references
+                if (absoluteUri.ToString().Contains("StrukturyDanych_v10-0E.xsd"))
+                {
+                    var localPath = Path.Combine(_basePath, "Ksef", "StrukturyDanych_v10-0E.xsd");
+                    if (System.IO.File.Exists(localPath))
+                    {
+                        return new FileStream(localPath, FileMode.Open, FileAccess.Read);
+                    }
+                }
+
+                // Fall back to default resolver for other URIs
+                var defaultResolver = new XmlUrlResolver();
+                return defaultResolver.GetEntity(absoluteUri, role, ofObjectToReturn);
+            }
+            catch
+            {
+                // If we can't resolve, return null and let validation continue without external schemas
+                return null;
+            }
+        }
+
+        public override Uri ResolveUri(Uri baseUri, string relativeUri)
+        {
+            return new XmlUrlResolver().ResolveUri(baseUri, relativeUri);
+        }
+
+        public override ICredentials Credentials
+        {
+            set { }
+        }
+    }
+}

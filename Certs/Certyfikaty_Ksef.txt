@@ -1,0 +1,10 @@
+FA/GRQMB-c572fd63-8ffa-4014-a0a2-ea88b6401a59/05/2025
+
+https://ksef-test.mf.gov.pl/client-app/invoice/6637651024/21-11-2025/03LA0CAXAdj69CyWM7ZSWYBqOxVoBDVlszK2xvqauVo/6637651024-20251121-010060675F6D-49/download
+
+testowe środowisko:
+https://web2te-ksef.mf.gov.pl/web/certificates/generate-internal-certificate
+
+certyfikaty:
+firma nip: 5323452439	typ: qrcode		nazwa: test_5323452439	hasło:Certyfikat_5323452439
+firma nip: 5323452439	typ: auth		nazwa: auth_5323452439	hasło:Certyfikat_5323452439

@@ -1,0 +1,719 @@
+﻿using KsefApi.Controllers;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc.Testing;
+using FluentAssertions;
+using System.Text;
+using System.Text.Json;
+using Xunit;
+
+namespace KsefApi.Tests
+{
+    public class KsefValidationTests : IClassFixture<WebApplicationFactory<Program>>
+    {
+        private readonly WebApplicationFactory<Program> _factory;
+        private readonly HttpClient _client;
+
+        public KsefValidationTests(WebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _client = _factory.CreateClient();
+        }
+
+        #region Valid XML Test Cases
+
+        [Fact]
+        public async Task ValidateXml_ValidMinimalInvoice_ReturnsSuccess()
+        {
+            // Arrange
+            var validXml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+        <SystemInfo>TestSystem 1.0</SystemInfo>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company Ltd</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Testowa 1</AdresL1>
+            <AdresL2>00-001 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>0987654321</NIP>
+            <Nazwa>Customer Company</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Kliencka 2</AdresL1>
+            <AdresL2>00-002 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot2>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_6>2024-01-15</P_6>
+        <P_13_1>100.00</P_13_1>
+        <P_14_1>23.00</P_14_1>
+        <P_15>123.00</P_15>
+    </Fa>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(validXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeTrue();
+            result.Message.Should().Contain("poprawny");
+        }
+
+        [Fact]
+        public async Task ValidateXml_ValidInvoiceWithMultipleLines_ReturnsSuccess()
+        {
+            // Arrange
+            var validXml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+        <SystemInfo>TestSystem 1.0</SystemInfo>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company Ltd</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Testowa 1</AdresL1>
+            <AdresL2>00-001 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>0987654321</NIP>
+            <Nazwa>Customer Company</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Kliencka 2</AdresL1>
+            <AdresL2>00-002 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot2>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_6>2024-01-15</P_6>
+        <P_13_1>100.00</P_13_1>
+        <P_13_2>50.00</P_13_2>
+        <P_13_3>25.00</P_13_3>
+        <P_14_1>23.00</P_14_1>
+        <P_14_2>11.50</P_14_2>
+        <P_14_3>5.75</P_14_3>
+        <P_15>215.25</P_15>
+    </Fa>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(validXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeTrue();
+        }
+
+        #endregion
+
+        #region Malformed XML Test Cases
+
+        [Fact]
+        public async Task ValidateXml_MalformedXml_MissingClosingTag_ReturnsError()
+        {
+            // Arrange
+            var malformedXml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <!-- Missing closing tag for Naglowek -->
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(malformedXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+            result.Errors.First().Should().Contain("XML");
+        }
+
+        [Fact]
+        public async Task ValidateXml_MalformedXml_InvalidCharacters_ReturnsError()
+        {
+            // Arrange
+            var malformedXml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <SystemInfo>Test & Invalid Characters < > ""quotes""</SystemInfo>
+    </Naglowek>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(malformedXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_NotXmlContent_ReturnsError()
+        {
+            // Arrange
+            var notXml = "This is not XML content at all!";
+            var content = new StringContent(JsonSerializer.Serialize(notXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        #endregion
+
+        #region Missing Required Elements Test Cases
+
+        [Fact]
+        public async Task ValidateXml_MissingRequiredNaglowek_ReturnsError()
+        {
+            // Arrange
+            var xmlMissingHeader = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_15>123.00</P_15>
+    </Fa>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlMissingHeader), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+            result.Errors.Should().Contain(e => e.Contains("Naglowek") || e.Contains("required") || e.Contains("wymagany"));
+        }
+
+        [Fact]
+        public async Task ValidateXml_MissingRequiredNIP_ReturnsError()
+        {
+            // Arrange
+            var xmlMissingNIP = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <!-- Missing NIP -->
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_15>123.00</P_15>
+    </Fa>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlMissingNIP), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_MissingRequiredFaSection_ReturnsError()
+        {
+            // Arrange
+            var xmlMissingFa = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+    <!-- Missing Fa section -->
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlMissingFa), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_MissingRequiredAttributes_ReturnsError()
+        {
+            // Arrange
+            var xmlMissingAttributes = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <!-- Missing required attributes -->
+        <KodFormularza>FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia>1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+    </Naglowek>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlMissingAttributes), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        #endregion
+
+        #region Redundant/Excessive Elements Test Cases
+
+        [Fact]
+        public async Task ValidateXml_RedundantElements_ReturnsError()
+        {
+            // Arrange
+            var xmlWithRedundantElements = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+        <SystemInfo>TestSystem 1.0</SystemInfo>
+        <!-- Redundant element not allowed in schema -->
+        <CustomElement>This should not be here</CustomElement>
+        <AnotherInvalidElement>Also invalid</AnotherInvalidElement>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company</Nazwa>
+            <!-- Excessive element -->
+            <InvalidField>Not allowed</InvalidField>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Testowa 1</AdresL1>
+            <AdresL2>00-001 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>0987654321</NIP>
+            <Nazwa>Customer Company</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Kliencka 2</AdresL1>
+            <AdresL2>00-002 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot2>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_6>2024-01-15</P_6>
+        <P_13_1>100.00</P_13_1>
+        <P_14_1>23.00</P_14_1>
+        <P_15>123.00</P_15>
+        <!-- Extra field not in schema -->
+        <P_999>Should not exist</P_999>
+    </Fa>
+    <!-- Completely invalid section -->
+    <InvalidSection>
+        <RandomData>This is not allowed</RandomData>
+    </InvalidSection>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithRedundantElements), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+            result.Errors.Count.Should().BeGreaterThan(1, "Multiple redundant elements should generate multiple errors");
+        }
+
+        [Fact]
+        public async Task ValidateXml_InvalidNamespace_ReturnsError()
+        {
+            // Arrange
+            var xmlWithWrongNamespace = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://invalid.namespace.com/wrong/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+    </Naglowek>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithWrongNamespace), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        #endregion
+
+        #region Data Type and Format Validation Test Cases
+
+        [Fact]
+        public async Task ValidateXml_InvalidDateFormat_ReturnsError()
+        {
+            // Arrange
+            var xmlWithInvalidDate = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <!-- Invalid date format -->
+        <DataWytworzeniaFa>15-01-2024</DataWytworzeniaFa>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+    <Fa>
+        <!-- Another invalid date -->
+        <P_1>2024/01/15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_15>123.00</P_15>
+    </Fa>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithInvalidDate), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_InvalidNIPFormat_ReturnsError()
+        {
+            // Arrange
+            var xmlWithInvalidNIP = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <!-- Invalid NIP format (too short) -->
+            <NIP>123456789</NIP>
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <!-- Invalid NIP format (letters) -->
+            <NIP>123456789A</NIP>
+            <Nazwa>Customer Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot2>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithInvalidNIP), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_InvalidMonetaryFormat_ReturnsError()
+        {
+            // Arrange
+            var xmlWithInvalidMoney = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <!-- Invalid monetary format -->
+        <P_13_1>100,00,00</P_13_1>
+        <P_14_1>not_a_number</P_14_1>
+        <P_15>123.456.789</P_15>
+    </Fa>
+</Faktura>";
+
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithInvalidMoney), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        #endregion
+
+        #region Edge Cases and Boundary Tests
+
+        [Fact]
+        public async Task ValidateXml_EmptyXml_ReturnsError()
+        {
+            // Arrange
+            var emptyXml = "";
+            var content = new StringContent(JsonSerializer.Serialize(emptyXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_VeryLargeValidXml_ReturnsSuccess()
+        {
+            // Arrange - create a valid XML with many line items
+            var largeXmlBuilder = new StringBuilder();
+            largeXmlBuilder.Append(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Faktura xmlns=""http://crd.gov.pl/wzor/2025/06/25/13775/"">
+    <Naglowek>
+        <KodFormularza kodSystemowy=""FA (2)"" kodPodatku=""VAT"" rodzajVAT=""ZWYKLY"" wersjaSchemy=""1-0E"">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz=""P_7"">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+        <SystemInfo>TestSystem 1.0</SystemInfo>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company Ltd</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Testowa 1</AdresL1>
+            <AdresL2>00-001 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>0987654321</NIP>
+            <Nazwa>Customer Company</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Kliencka 2</AdresL1>
+            <AdresL2>00-002 Warszawa</AdresL2>
+        </Adres>
+    </Podmiot2>
+    <Fa>
+        <P_1>2024-01-15</P_1>
+        <P_2A>2024/001</P_2A>
+        <P_6>2024-01-15</P_6>");
+
+            // Add many line items to test performance and limits
+            for (int i = 1; i <= 20; i++)
+            {
+                largeXmlBuilder.Append($@"
+        <P_13_{i}>{i * 10}.00</P_13_{i}>
+        <P_14_{i}>{i * 2.3:F2}</P_14_{i}>");
+            }
+
+            largeXmlBuilder.Append(@"
+        <P_15>5000.00</P_15>
+    </Fa>
+</Faktura>");
+
+            var content = new StringContent(JsonSerializer.Serialize(largeXmlBuilder.ToString()), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            // This might fail validation due to schema limits, but should not crash
+            result.Should().NotBeNull();
+            result.Message.Should().NotBeNullOrEmpty();
+        }
+
+        #endregion
+    }
+
+    // Response model for deserialization
+    public class ValidationResponse
+    {
+        public bool Valid { get; set; }
+        public List<string> Errors { get; set; } = new();
+        public List<string> Warnings { get; set; } = new();
+        public string Message { get; set; } = string.Empty;
+    }
+}

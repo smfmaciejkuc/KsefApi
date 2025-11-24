@@ -1,0 +1,99 @@
+﻿@echo off
+echo =========================================
+echo Pobieranie schematów i szablonów KSEF z serwera gov.pl
+echo =========================================
+echo.
+
+echo 1. Pobieranie StrukturyDanych_v10-0E.xsd...
+curl -o "Ksef\StrukturyDanych_v10-0E.xsd" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd"
+
+if %ERRORLEVEL% EQU 0 (
+    echo ✓ StrukturyDanych_v10-0E.xsd pobrany pomyślnie
+) else (
+    echo ✗ Błąd podczas pobierania StrukturyDanych_v10-0E.xsd
+)
+
+echo.
+echo 2. Pobieranie ElementarneTypyDanych_v10-0E.xsd...
+curl -o "Ksef\ElementarneTypyDanych_v10-0E.xsd" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/ElementarneTypyDanych_v10-0E.xsd"
+
+if %ERRORLEVEL% EQU 0 (
+    echo ✓ ElementarneTypyDanych_v10-0E.xsd pobrany pomyślnie
+) else (
+    echo ✗ Błąd podczas pobierania ElementarneTypyDanych_v10-0E.xsd
+)
+
+echo.
+echo 3. Pobieranie WspolneSzablonyWizualizacji_v12-0E.xsl...
+curl -o "Ksef\WspolneSzablonyWizualizacji_v12-0E.xsl" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/07/eD/DefinicjeSzablony/WspolneSzablonyWizualizacji_v12-0E.xsl"
+
+if %ERRORLEVEL% EQU 0 (
+    echo ✓ WspolneSzablonyWizualizacji_v12-0E.xsl pobrany pomyślnie
+) else (
+    echo ✗ Błąd podczas pobierania WspolneSzablonyWizualizacji_v12-0E.xsl
+    echo   Zostanie użyty minimalny szablon zastępczy
+)
+
+echo.
+echo =========================================
+echo Status plików schematów i szablonów:
+echo =========================================
+
+if exist "Ksef\schemat.xsd" (
+    echo ✓ schemat.xsd - główny schemat KSEF
+) else (
+    echo ✗ schemat.xsd - BRAK
+)
+
+if exist "Ksef\StrukturyDanych_v10-0E.xsd" (
+    echo ✓ StrukturyDanych_v10-0E.xsd - struktury danych gov.pl
+) else (
+    echo ✗ StrukturyDanych_v10-0E.xsd - BRAK
+)
+
+if exist "Ksef\ElementarneTypyDanych_v10-0E.xsd" (
+    echo ✓ ElementarneTypyDanych_v10-0E.xsd - podstawowe typy gov.pl
+) else (
+    echo ✗ ElementarneTypyDanych_v10-0E.xsd - BRAK
+)
+
+if exist "Ksef\styl.xsl" (
+    echo ✓ styl.xsl - szablon HTML faktury
+) else (
+    echo ✗ styl.xsl - BRAK
+)
+
+if exist "Ksef\WspolneSzablonyWizualizacji_v12-0E.xsl" (
+    echo ✓ WspolneSzablonyWizualizacji_v12-0E.xsl - wspólne szablony gov.pl
+) else (
+    echo ⚠ WspolneSzablonyWizualizacji_v12-0E.xsl - BRAK (będzie utworzony automatycznie)
+)
+
+echo.
+
+if exist "Ksef\schemat.xsd" if exist "Ksef\StrukturyDanych_v10-0E.xsd" if exist "Ksef\ElementarneTypyDanych_v10-0E.xsd" if exist "Ksef\styl.xsl" (
+    echo ✓ Wszystkie podstawowe pliki są dostępne!
+    echo   API KSEF powinno teraz poprawnie walidować XML i generować HTML.
+) else (
+    echo ⚠ Niektóre podstawowe pliki są niedostępne.
+    echo   Walidacja XML lub transformacja HTML może być niepełna.
+)
+
+echo.
+echo =========================================
+echo Informacje dodatkowe:
+echo =========================================
+echo.
+echo Jeśli pobieranie automatyczne nie powiodło się, możesz pobrać pliki ręcznie:
+echo.
+echo 1. StrukturyDanych_v10-0E.xsd:
+echo    http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd
+echo.
+echo 2. ElementarneTypyDanych_v10-0E.xsd:
+echo    http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/ElementarneTypyDanych_v10-0E.xsd
+echo.
+echo 3. WspolneSzablonyWizualizacji_v12-0E.xsl:
+echo    http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/07/eD/DefinicjeSzablony/WspolneSzablonyWizualizacji_v12-0E.xsl
+echo.
+
+pause

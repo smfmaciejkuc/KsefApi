@@ -1,0 +1,68 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml;
+using System.Xml.Xsl;
+
+namespace KsefApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class KsefController : ControllerBase
+    {
+        private readonly IWebHostEnvironment _env;
+
+        public KsefController(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+
+        [HttpPost("validate")]
+        public IActionResult ValidateXml([FromBody] string xmlContent)
+        {
+            var schemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "schemat.xsd");
+            var settings = new XmlReaderSettings();
+            settings.Schemas.Add(null, schemaPath);
+            settings.ValidationType = ValidationType.Schema;
+
+            var errors = new List<string>();
+            settings.ValidationEventHandler += (s, e) => errors.Add(e.Message);
+
+            using var reader = XmlReader.Create(new StringReader(xmlContent), settings);
+            try
+            {
+                while (reader.Read()) { }
+            }
+            catch (XmlException ex)
+            {
+                errors.Add(ex.Message);
+            }
+
+            if (errors.Any())
+                return BadRequest(new { valid = false, errors });
+
+            return Ok(new { valid = true });
+        }
+
+        [HttpPost("html")]
+        public IActionResult TransformToHtml([FromBody] string xmlContent)
+        {
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+
+            var transform = new XslCompiledTransform();
+            transform.Load(xslPath);
+
+            using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+            using var sw = new StringWriter();
+            transform.Transform(xmlReader, null, sw);
+
+            return Content(sw.ToString(), "text/html");
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadXml(IFormFile file)
+        {
+            using var reader = new StreamReader(file.OpenReadStream());
+            var xml = await reader.ReadToEndAsync();
+            return TransformToHtml(xml);
+        }
+    }
+}

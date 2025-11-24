@@ -1,0 +1,293 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml;
+using System.Xml.Xsl;
+using System.Xml.Schema;
+using System.Net;
+
+namespace KsefApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class KsefController : ControllerBase
+    {
+        private readonly IWebHostEnvironment _env;
+
+        public KsefController(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+
+        [HttpPost("validate")]
+        public async Task<IActionResult> ValidateXml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var schemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "schemat.xsd");
+            var structureSchemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "StrukturyDanych_v10-0E.xsd");
+            var elementarySchemaPath = Path.Combine(_env.ContentRootPath, "Ksef", "ElementarneTypyDanych_v10-0E.xsd");
+            
+            var errors = new List<string>();
+            var warnings = new List<string>();
+
+            // Check for required schema files
+            if (!System.IO.File.Exists(schemaPath))
+            {
+                errors.Add($"Nie znaleziono głównego pliku schematu: schemat.xsd");
+            }
+
+            if (!System.IO.File.Exists(structureSchemaPath))
+            {
+                warnings.Add("Brak pliku schematu StrukturyDanych_v10-0E.xsd. Walidacja może być niepełna.");
+            }
+
+            if (!System.IO.File.Exists(elementarySchemaPath))
+            {
+                warnings.Add("Brak pliku schematu ElementarneTypyDanych_v10-0E.xsd. Walidacja może być niepełna.");
+            }
+
+            try
+            {
+                var settings = new XmlReaderSettings();
+                
+                if (System.IO.File.Exists(schemaPath))
+                {
+                    // First, manually load the base schemas in correct order to resolve dependencies
+                    var schemaSet = new XmlSchemaSet();
+                    var resolver = new LocalSchemaResolver(_env.ContentRootPath);
+                    schemaSet.XmlResolver = resolver;
+
+                    // Load elementary types first (base types)
+                    if (System.IO.File.Exists(elementarySchemaPath))
+                    {
+                        schemaSet.Add("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", elementarySchemaPath);
+                    }
+
+                    // Then load structure data (depends on elementary types)
+                    if (System.IO.File.Exists(structureSchemaPath))
+                    {
+                        schemaSet.Add("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", structureSchemaPath);
+                    }
+
+                    // Finally load the main schema (depends on both)
+                    schemaSet.Add("http://crd.gov.pl/wzor/2025/06/25/13775/", schemaPath);
+
+                    // Compile the schema set
+                    schemaSet.Compile();
+
+                    // Configure validation settings
+                    settings.Schemas = schemaSet;
+                    settings.ValidationType = ValidationType.Schema;
+                    settings.ValidationFlags = XmlSchemaValidationFlags.ProcessInlineSchema |
+                                             XmlSchemaValidationFlags.ProcessSchemaLocation |
+                                             XmlSchemaValidationFlags.ReportValidationWarnings;
+
+                    settings.ValidationEventHandler += (s, e) =>
+                    {
+                        var message = $"{e.Message}";
+                        if (e.Exception?.LineNumber > 0)
+                        {
+                            message += $" (linia: {e.Exception.LineNumber})";
+                        }
+
+                        if (e.Severity == XmlSeverityType.Error)
+                            errors.Add($"Błąd walidacji: {message}");
+                        else
+                            warnings.Add($"Ostrzeżenie walidacji: {message}");
+                    };
+
+                    settings.XmlResolver = resolver;
+                }
+                else
+                {
+                    return BadRequest(new { valid = false, errors, warnings, message = "Brak głównego pliku schematu" });
+                }
+
+                // Validate XML against schema
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent), settings);
+                
+                // Read through the entire document to trigger validation
+                while (xmlReader.Read()) { }
+            }
+            catch (XmlSchemaException ex)
+            {
+                errors.Add($"Błąd schematu: {ex.Message}" + (ex.LineNumber > 0 ? $" (linia: {ex.LineNumber})" : ""));
+            }
+            catch (XmlException ex)
+            {
+                errors.Add($"Błąd XML: {ex.Message}" + (ex.LineNumber > 0 ? $" (linia: {ex.LineNumber})" : ""));
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Błąd ogólny: {ex.Message}");
+            }
+
+            var result = new 
+            { 
+                valid = !errors.Any(), 
+                errors,
+                warnings,
+                message = !errors.Any() ? "XML jest poprawny zgodnie ze schematem KSEF" : "XML zawiera błędy walidacji"
+            };
+
+            if (errors.Any())
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("html")]
+        public async Task<IActionResult> TransformToHtml()
+        {
+            // Read raw content from request body
+            string xmlContent;
+            using var reader = new StreamReader(Request.Body);
+            xmlContent = await reader.ReadToEndAsync();
+
+            // Handle JSON-wrapped content (remove quotes if present)
+            if (xmlContent.StartsWith("\"") && xmlContent.EndsWith("\""))
+            {
+                xmlContent = xmlContent.Substring(1, xmlContent.Length - 2);
+                // Unescape JSON string content
+                xmlContent = xmlContent.Replace("\\\"", "\"").Replace("\\\\", "\\");
+            }
+
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+
+            try
+            {
+                var transform = new XslCompiledTransform();
+                transform.Load(xslPath);
+
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+                using var sw = new StringWriter();
+                transform.Transform(xmlReader, null, sw);
+
+                return Content(sw.ToString(), "text/html");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Błąd transformacji XML do HTML", details = ex.Message });
+            }
+        }
+
+        // Helper method for transforming XML content to HTML
+        private async Task<IActionResult> TransformXmlToHtml(string xmlContent)
+        {
+            var xslPath = Path.Combine(_env.ContentRootPath, "Ksef", "styl.xsl");
+
+            try
+            {
+                var transform = new XslCompiledTransform();
+                transform.Load(xslPath);
+
+                using var xmlReader = XmlReader.Create(new StringReader(xmlContent));
+                using var sw = new StringWriter();
+                transform.Transform(xmlReader, null, sw);
+
+                return Content(sw.ToString(), "text/html");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Błąd transformacji XML do HTML", details = ex.Message });
+            }
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadXml(IFormFile file)
+        {
+            using var reader = new StreamReader(file.OpenReadStream());
+            var xml = await reader.ReadToEndAsync();
+            return await TransformXmlToHtml(xml);
+        }
+    }
+
+    // Enhanced XML resolver to handle local schema files
+    public class LocalSchemaResolver : XmlResolver
+    {
+        private readonly string _basePath;
+        private readonly Dictionary<string, string> _schemaMapping;
+
+        public LocalSchemaResolver(string basePath)
+        {
+            _basePath = basePath;
+            
+            // Map external URIs to local files
+            _schemaMapping = new Dictionary<string, string>
+            {
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "StrukturyDanych_v10-0E.xsd") },
+                { "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/ElementarneTypyDanych_v10-0E.xsd", 
+                  Path.Combine(_basePath, "Ksef", "ElementarneTypyDanych_v10-0E.xsd") }
+            };
+        }
+
+        public override object? GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
+        {
+            try
+            {
+                var uriString = absoluteUri.ToString();
+
+                // Check if we have a local mapping for this URI
+                foreach (var mapping in _schemaMapping)
+                {
+                    if (uriString.Contains(mapping.Key) || uriString.EndsWith(Path.GetFileName(mapping.Value)))
+                    {
+                        if (System.IO.File.Exists(mapping.Value))
+                        {
+                            return new FileStream(mapping.Value, FileMode.Open, FileAccess.Read);
+                        }
+                    }
+                }
+
+                // Try default resolution for other resources
+                var defaultResolver = new XmlUrlResolver();
+                return defaultResolver.GetEntity(absoluteUri, role, ofObjectToReturn);
+            }
+            catch
+            {
+                // If we can't resolve, return null and let validation continue
+                return null;
+            }
+        }
+
+        public override Uri? ResolveUri(Uri? baseUri, string? relativeUri)
+        {
+            try
+            {
+                // Handle relative URIs for local schemas
+                if (relativeUri != null)
+                {
+                    foreach (var mapping in _schemaMapping)
+                    {
+                        if (relativeUri.Contains(Path.GetFileName(mapping.Value)))
+                        {
+                            return new Uri(mapping.Key);
+                        }
+                    }
+                }
+
+                return new XmlUrlResolver().ResolveUri(baseUri, relativeUri);
+            }
+            catch
+            {
+                return baseUri;
+            }
+        }
+
+        public override ICredentials? Credentials
+        {
+            set { }
+        }
+    }
+}

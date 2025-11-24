@@ -1,0 +1,66 @@
+﻿@echo off
+echo =========================================
+echo Pobieranie schematów KSEF z serwera gov.pl
+echo =========================================
+echo.
+
+echo 1. Pobieranie StrukturyDanych_v10-0E.xsd...
+curl -o "Ksef\StrukturyDanych_v10-0E.xsd" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/StrukturyDanych_v10-0E.xsd"
+
+if %ERRORLEVEL% EQU 0 (
+    echo ✓ StrukturyDanych_v10-0E.xsd pobrany pomyślnie
+) else (
+    echo ✗ Błąd podczas pobierania StrukturyDanych_v10-0E.xsd
+)
+
+echo.
+echo 2. Pobieranie ElementarneTypyDanych_v10-0E.xsd...
+curl -o "Ksef\ElementarneTypyDanych_v10-0E.xsd" "http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/ElementarneTypyDanych_v10-0E.xsd"
+
+if %ERRORLEVEL% EQU 0 (
+    echo ✓ ElementarneTypyDanych_v10-0E.xsd pobrany pomyślnie
+) else (
+    echo ✗ Błąd podczas pobierania ElementarneTypyDanych_v10-0E.xsd
+)
+
+echo.
+echo =========================================
+echo Status plików schematów:
+echo =========================================
+
+if exist "Ksef\schemat.xsd" (
+    echo ✓ schemat.xsd - główny schemat KSEF
+) else (
+    echo ✗ schemat.xsd - BRAK
+)
+
+if exist "Ksef\StrukturyDanych_v10-0E.xsd" (
+    echo ✓ StrukturyDanych_v10-0E.xsd - struktury danych gov.pl
+) else (
+    echo ✗ StrukturyDanych_v10-0E.xsd - BRAK
+)
+
+if exist "Ksef\ElementarneTypyDanych_v10-0E.xsd" (
+    echo ✓ ElementarneTypyDanych_v10-0E.xsd - podstawowe typy gov.pl
+) else (
+    echo ✗ ElementarneTypyDanych_v10-0E.xsd - BRAK
+)
+
+if exist "Ksef\styl.xsl" (
+    echo ✓ styl.xsl - szablon HTML
+) else (
+    echo ✗ styl.xsl - BRAK
+)
+
+echo.
+
+if exist "Ksef\schemat.xsd" if exist "Ksef\StrukturyDanych_v10-0E.xsd" if exist "Ksef\ElementarneTypyDanych_v10-0E.xsd" (
+    echo ✓ Wszystkie wymagane schematy są dostępne!
+    echo   API KSEF powinno teraz poprawnie walidować XML.
+) else (
+    echo ⚠ Niektóre schematy są niedostępne.
+    echo   Walidacja XML może być niepełna.
+)
+
+echo.
+pause

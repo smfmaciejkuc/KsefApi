@@ -1,0 +1,125 @@
+﻿using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
+using System.Text.Json;
+using Xunit;
+
+namespace KsefApi.Tests
+{
+    public class KsefStatusTests : IClassFixture<WebApplicationFactory<Program>>
+    {
+        private readonly WebApplicationFactory<Program> _factory;
+        private readonly HttpClient _client;
+
+        public KsefStatusTests(WebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _client = _factory.CreateClient();
+        }
+
+        [Fact]
+        public async Task GetStatus_ReturnsStatusInfo()
+        {
+            // Act
+            var response = await _client.GetAsync("/api/ksef/status");
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            var content = await response.Content.ReadAsStringAsync();
+            var statusResponse = JsonSerializer.Deserialize<StatusResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            statusResponse.Should().NotBeNull();
+            statusResponse.Files.Should().NotBeEmpty();
+            statusResponse.Files.Should().ContainKey("schemat.xsd");
+            statusResponse.Summary.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task Ping_ReturnsSuccess()
+        {
+            // Act
+            var response = await _client.GetAsync("/api/ksef/ping");
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            var content = await response.Content.ReadAsStringAsync();
+            var pingResponse = JsonSerializer.Deserialize<PingResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            pingResponse.Should().NotBeNull();
+            pingResponse.Message.Should().Contain("running");
+            pingResponse.Timestamp.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMinutes(1));
+        }
+
+        [Fact]
+        public async Task GetInfo_ReturnsConfigurationInfo()
+        {
+            // Act
+            var response = await _client.GetAsync("/api/ksef/info");
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            var content = await response.Content.ReadAsStringAsync();
+            content.Should().Contain("KSeF API Configuration Info");
+            content.Should().Contain("connection");
+            content.Should().Contain("suggestedHttpVariable");
+        }
+
+        [Fact]
+        public async Task Test_ReturnsOkWithData()
+        {
+            // Arrange
+            var testData = new { testProperty = "testValue", number = 42 };
+            var jsonContent = new StringContent(JsonSerializer.Serialize(testData), System.Text.Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/test", jsonContent);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            var content = await response.Content.ReadAsStringAsync();
+            var testResponse = JsonSerializer.Deserialize<TestResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            testResponse.Should().NotBeNull();
+            testResponse.Received.Should().Be("OK");
+            testResponse.DataType.Should().NotBeNullOrEmpty();
+        }
+    }
+
+    // Response models for deserialization
+    public class StatusResponse
+    {
+        public string Status { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public bool CanValidate { get; set; }
+        public bool CanTransform { get; set; }
+        public Dictionary<string, FileInfo> Files { get; set; } = new();
+        public StatusSummary Summary { get; set; } = new();
+
+        public class FileInfo
+        {
+            public bool Exists { get; set; }
+            public bool Required { get; set; }
+            public string Description { get; set; } = string.Empty;
+        }
+
+        public class StatusSummary
+        {
+            public string RequiredFiles { get; set; } = string.Empty;
+            public string OptionalFiles { get; set; } = string.Empty;
+        }
+    }
+
+    public class PingResponse
+    {
+        public string Message { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; }
+        public string Environment { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
+    }
+
+    public class TestResponse
+    {
+        public string Received { get; set; } = string.Empty;
+        public string DataType { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; }
+    }
+}

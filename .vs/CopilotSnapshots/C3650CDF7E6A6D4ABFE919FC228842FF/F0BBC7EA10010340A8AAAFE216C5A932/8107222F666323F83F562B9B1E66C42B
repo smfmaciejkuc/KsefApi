@@ -1,0 +1,35 @@
+﻿version: '3.8'
+services:
+  ksefapi:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5228:8080"    # HTTP
+      - "7275:8081"    # HTTPS
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      # Uncomment lines below after generating certificates with generate-cert.ps1
+      # - ASPNETCORE_Kestrel__Certificates__Default__Password=KsefDev123!
+      # - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certs/ksef-dev.pfx
+    volumes:
+      - ./Ksef:/app/Ksef  # Schema files
+      # Uncomment line below after generating certificates
+      # - ./certs:/app/certs  # Certificates
+    container_name: ksef-api-container
+
+  # Alternative: Use nginx as reverse proxy for HTTPS
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - ksefapi
+    profiles:
+      - with-nginx

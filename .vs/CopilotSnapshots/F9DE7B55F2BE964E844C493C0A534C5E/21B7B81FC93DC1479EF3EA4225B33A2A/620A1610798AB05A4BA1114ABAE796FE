@@ -1,0 +1,226 @@
+﻿using KsefApi.Tests.Utilities;
+using Microsoft.AspNetCore.Mvc.Testing;
+using FluentAssertions;
+using System.Text;
+using System.Text.Json;
+using Xunit;
+
+namespace KsefApi.Tests
+{
+    public class KsefDataDrivenValidationTests : IClassFixture<WebApplicationFactory<Program>>
+    {
+        private readonly WebApplicationFactory<Program> _factory;
+        private readonly HttpClient _client;
+
+        public KsefDataDrivenValidationTests(WebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _client = _factory.CreateClient();
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataHelper.GetInvalidDataTestCases), MemberType = typeof(TestDataHelper))]
+        public async Task ValidateXml_InvalidDataFormats_ReturnsValidationErrors(string elementName, string invalidValue, string testDescription)
+        {
+            // Arrange
+            var xmlWithInvalidData = TestDataHelper.CreateXmlWithInvalidData(elementName, invalidValue);
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithInvalidData), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest, $"Failed test case: {testDescription}");
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse($"Should be invalid for test case: {testDescription}");
+            result.Errors.Should().NotBeEmpty($"Should have validation errors for: {testDescription}");
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataHelper.GetMissingElementTestCases), MemberType = typeof(TestDataHelper))]
+        public async Task ValidateXml_MissingRequiredElements_ReturnsValidationErrors(string elementToRemove, string testDescription)
+        {
+            // Arrange
+            var xmlWithMissingElement = TestDataHelper.CreateXmlWithMissingElement(elementToRemove);
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithMissingElement), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest, $"Failed test case: {testDescription}");
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse($"Should be invalid for test case: {testDescription}");
+            result.Errors.Should().NotBeEmpty($"Should have validation errors for missing element: {elementToRemove}");
+        }
+
+        [Fact]
+        public async Task ValidateXml_ValidTestDataFile_ReturnsSuccess()
+        {
+            // Arrange
+            var validXml = TestDataHelper.GetValidInvoiceXml();
+            var content = new StringContent(JsonSerializer.Serialize(validXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeTrue();
+            result.Message.Should().Contain("poprawny");
+        }
+
+        [Fact]
+        public async Task ValidateXml_MalformedTestDataFile_ReturnsError()
+        {
+            // Arrange
+            var malformedXml = TestDataHelper.GetMalformedXml();
+            var content = new StringContent(JsonSerializer.Serialize(malformedXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_RedundantElementsTestDataFile_ReturnsError()
+        {
+            // Arrange
+            var redundantXml = TestDataHelper.GetRedundantElementsXml();
+            var content = new StringContent(JsonSerializer.Serialize(redundantXml), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+            result.Errors.Count.Should().BeGreaterThan(1, "Multiple redundant elements should generate multiple errors");
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData("not xml at all")]
+        [InlineData("<invalid>xml without proper structure")]
+        [InlineData("<?xml version='1.0'?><root>unclosed tag")]
+        public async Task ValidateXml_VariousInvalidInputs_ReturnsError(string invalidInput)
+        {
+            // Arrange
+            var content = new StringContent(JsonSerializer.Serialize(invalidInput), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData("http://wrong.namespace.com/")]
+        [InlineData("http://crd.gov.pl/wzor/2024/06/25/13775/")] // Wrong year
+        [InlineData("")] // No namespace
+        public async Task ValidateXml_InvalidNamespaces_ReturnsError(string wrongNamespace)
+        {
+            // Arrange
+            var validXml = TestDataHelper.GetValidInvoiceXml();
+            var xmlWithWrongNamespace = validXml.Replace(
+                "http://crd.gov.pl/wzor/2025/06/25/13775/", 
+                wrongNamespace);
+            
+            var content = new StringContent(JsonSerializer.Serialize(xmlWithWrongNamespace), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Valid.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidateXml_PerformanceTestWithLargeValidXml_ReturnsSuccess()
+        {
+            // Arrange - create a large valid XML
+            var baseXml = TestDataHelper.GetValidInvoiceXml();
+            
+            // Insert multiple line items
+            var faSection = "<Fa>";
+            var faEndSection = "</Fa>";
+            var faStart = baseXml.IndexOf(faSection) + faSection.Length;
+            var faEnd = baseXml.IndexOf(faEndSection);
+            
+            var faContent = baseXml.Substring(faStart, faEnd - faStart);
+            var largeContent = new StringBuilder();
+            
+            largeContent.Append(baseXml.Substring(0, faStart));
+            
+            // Add base content
+            largeContent.Append(faContent);
+            
+            // Add many additional line items (within reason for test performance)
+            for (int i = 2; i <= 10; i++)
+            {
+                largeContent.AppendLine($"        <P_13_{i}>{i * 10}.00</P_13_{i}>");
+                largeContent.AppendLine($"        <P_14_{i}>{i * 2.3:F2}</P_14_{i}>");
+            }
+            
+            largeContent.Append(baseXml.Substring(faEnd));
+            
+            var content = new StringContent(JsonSerializer.Serialize(largeContent.ToString()), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/ksef/validate", content);
+
+            // Assert
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ValidationResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            result.Should().NotBeNull();
+            result.Message.Should().NotBeNullOrEmpty();
+            // Note: This might pass or fail depending on schema constraints, 
+            // but should not crash or timeout
+        }
+    }
+}

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (2)" kodPodatku="VAT" rodzajVAT="ZWYKLY" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>2</WariantFormularza>
+        <CelZlozenia poz="P_7">1</CelZlozenia>
+        <DataWytworzeniaFa>2024-01-15</DataWytworzeniaFa>
+        <!-- Missing closing tag for Naglowek -->
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>1234567890</NIP>
+            <Nazwa>Test Company</Nazwa>
+        </DaneIdentyfikacyjne>
+    </Podmiot1>
+</Faktura>

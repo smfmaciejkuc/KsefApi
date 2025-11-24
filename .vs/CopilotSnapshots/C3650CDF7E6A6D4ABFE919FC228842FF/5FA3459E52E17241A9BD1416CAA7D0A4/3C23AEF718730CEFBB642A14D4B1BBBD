@@ -1,0 +1,16 @@
+﻿version: '3.8'
+services:
+  ksefapi:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5228:8080"    # HTTP - zawsze ten sam port
+      - "7275:8081"    # HTTPS - zawsze ten sam port
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    volumes:
+      - ./Ksef:/app/Ksef  # Montowanie katalogu ze schematami
+    container_name: ksef-api-container

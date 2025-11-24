@@ -1,0 +1,177 @@
+﻿# KSeF API - Testy Walidacji
+
+## Opis testów
+
+Projekt testów jednostkowych i integracyjnych dla API KSeF, sprawdzający poprawność walidacji XML oraz funkcjonalność endpointów.
+
+## Typy testów
+
+### 1. KsefValidationTests
+**Testy walidacji XML**
+- ✅ `ValidateXml_ValidMinimalInvoice_ReturnsSuccess` - Test prawidłowej faktury
+- ❌ `ValidateXml_MalformedXml_ReturnsError` - Test nieprawidłowego XML
+- ❌ `ValidateXml_MissingRequiredElements_ReturnsError` - Test brakujących elementów
+- ❌ `ValidateXml_RedundantElements_ReturnsError` - Test nadmiarowych elementów
+- ❌ `ValidateXml_InvalidDataFormats_ReturnsError` - Test nieprawidłowych formatów
+- ❌ `ValidateXml_InvalidInputs_ReturnsError` - Test różnych nieprawidłowych danych
+
+### 2. KsefTransformationTests
+**Testy transformacji XML → HTML**
+- ✅ `TransformToHtml_ValidXml_ReturnsHtml` - Test transformacji prawidłowego XML
+- ❌ `TransformToHtml_MalformedXml_ReturnsError` - Test transformacji nieprawidłowego XML
+
+### 3. KsefStatusTests
+**Testy endpointów diagnostycznych**
+- ✅ `GetStatus_ReturnsStatusInfo` - Test statusu plików schematu
+- ✅ `Ping_ReturnsSuccess` - Test ping endpointu
+- ✅ `GetInfo_ReturnsConfigurationInfo` - Test informacji o konfiguracji
+- ✅ `Test_ReturnsOkWithData` - Test endpointu testowego
+
+## Dane testowe
+
+### TestData/
+- `ValidInvoice.xml` - Prawidłowa faktura KSeF
+- `InvalidXml.xml` - Nieprawidłowy XML (błędy strukturalne)
+
+## Uruchamianie testów
+
+### W Visual Studio
+1. **Test Explorer**: `Test` → `Test Explorer`
+2. **Build Solution**: `Build` → `Build Solution`
+3. **Run All Tests**: Kliknij `Run All Tests in View`
+4. **Run Specific Tests**: Kliknij prawym na metodę/klasę → `Run Tests`
+
+### Przez dotnet CLI
+```bash
+# Przejdź do katalogu głównego
+cd KsefApi
+
+# Uruchom wszystkie testy
+dotnet test KsefApi.Tests
+
+# Uruchom testy z szczegółowym wyjściem
+dotnet test KsefApi.Tests --verbosity normal
+
+# Uruchom tylko testy walidacji
+dotnet test KsefApi.Tests --filter "FullyQualifiedName~KsefValidationTests"
+
+# Uruchom tylko testy transformacji
+dotnet test KsefApi.Tests --filter "FullyQualifiedName~KsefTransformationTests"
+
+# Uruchom tylko testy statusu
+dotnet test KsefApi.Tests --filter "FullyQualifiedName~KsefStatusTests"
+```
+
+## Przypadki testowe
+
+### ✅ Pozytywne (powinny przejść)
+1. **Prawidłowa faktura** - kompletny dokument XML zgodny ze schematem
+2. **Ping endpoint** - sprawdzenie dostępności API
+3. **Status endpoint** - informacje o plikach schematu
+4. **Info endpoint** - konfiguracja API
+
+### ❌ Negatywne (powinny być odrzucone)
+1. **Nieprawidłowy XML**:
+   - Brakujące tagi zamykające
+   - Nieprawidłowe znaki
+   - Błędna struktura
+
+2. **Brakujące wymagane elementy**:
+   - Sekcja `<Naglowek>`
+   - Elementy `<Podmiot1>`, `<Podmiot2>`
+   - Sekcja `<Fa>` z danymi faktury
+   - Wymagane pola NIP, nazwa firmy
+
+3. **Nadmiarowe elementy**:
+   - Elementy spoza schematu
+   - Dodatkowe pola w sekcjach
+   - Nieprawidłowe atrybuty
+
+4. **Nieprawidłowe formaty danych**:
+   - Błędny format daty (`15-01-2024` zamiast `2024-01-15`)
+   - Nieprawidłowy NIP (za krótki, z literami)
+   - Błędne wartości monetarne
+   - Nieprawidłowe kody krajów
+
+5. **Różne nieprawidłowe dane**:
+   - Pusty string
+   - Tekst niebędący XML
+   - Częściowo utworzony XML
+
+## Wymagania testowe
+
+### Pliki schematu (dla pełnej walidacji)
+Testy mogą wymagać plików schematu w katalogu głównym `Ksef/`:
+- `schemat.xsd`
+- `StrukturyDanych_v10-0E.xsd` 
+- `ElementarneTypyDanych_v10-0E.xsd`
+- `styl.xsl` (dla testów transformacji)
+
+**Uwaga**: Testy są zaprojektowane tak, aby działały nawet bez plików schematu - będą wtedy testować ogólną logikę walidacji XML.
+
+### Brak plików schematu
+Jeśli pliki schematu nie istnieją:
+- Testy walidacji sprawdzą podstawową strukturę XML
+- Testy transformacji mogą zwrócić błędy (co jest oczekiwane)
+- Testy statusu pokażą brakujące pliki
+
+## Interpretacja wyników
+
+### ✅ Test PASSED
+```
+✓ KsefValidationTests.ValidateXml_ValidMinimalInvoice_ReturnsSuccess
+  Duration: 150 ms
+```
+
+### ❌ Test FAILED
+```
+✗ KsefValidationTests.ValidateXml_MalformedXml_ReturnsError
+  Duration: 50 ms
+  
+  Expected response.StatusCode to be BadRequest, but found OK.
+  
+  Expected: BadRequest (400)
+  Actual:   OK (200)
+```
+
+### ⚠️ Test SKIPPED
+Testy nie są pomijane w tym projekcie.
+
+## Rozszerzanie testów
+
+### Dodanie nowego testu
+1. Dodaj metodę z atrybutem `[Fact]` lub `[Theory]`
+2. Użyj wzorca **Arrange-Act-Assert**
+3. Zastosuj FluentAssertions dla czytelnych asercji
+
+### Dodanie nowych danych testowych
+1. Utwórz plik XML w `TestData/`
+2. Dodaj `<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>` w csproj
+3. Załaduj dane w teście
+
+## Troubleshooting
+
+### Błąd: "No test adapter found"
+```bash
+dotnet restore KsefApi.Tests
+```
+
+### Błąd: "Project reference could not be resolved"
+Sprawdź czy referencja do głównego projektu jest poprawna w `KsefApi.Tests.csproj`
+
+### Długie czasy wykonania testów
+- Zmniejsz rozmiar danych testowych
+- Użyj filtrów do uruchamiania konkretnych testów
+- Sprawdź czy aplikacja nie próbuje łączyć się z zewnętrznymi zasobami
+
+### Testy transformacji zawodzą
+To może być normalne jeśli brakuje plików XSL - testy sprawdzą czy API poprawnie zwraca błędy.
+
+## Metryki
+
+| Kategoria | Liczba testów | Opis |
+|-----------|---------------|------|
+| Walidacja | 6 | Podstawowe testy walidacji XML |
+| Transformacja | 2 | Testy konwersji XML→HTML |
+| Status | 4 | Endpointy diagnostyczne |
+| **Razem** | **12** | **Pokrycie podstawowych funkcji** |
