@@ -1,9 +1,0 @@
-C:\dev\Ksef\CertyficateManager\obj\Debug\CertyficateManager.csproj.AssemblyReference.cache
-C:\dev\Ksef\CertyficateManager\obj\Debug\CertyficateManager.csproj.CoreCompileInputs.cache
-C:\dev\Ksef\CertyficateManager\bin\Debug\CertyficateManager.dll
-C:\dev\Ksef\CertyficateManager\bin\Debug\CertyficateManager.pdb
-C:\dev\Ksef\CertyficateManager\bin\Debug\BouncyCastle.Cryptography.dll
-C:\dev\Ksef\CertyficateManager\bin\Debug\BouncyCastle.Cryptography.xml
-C:\dev\Ksef\CertyficateManager\obj\Debug\Certyfic.15C06302.Up2Date
-C:\dev\Ksef\CertyficateManager\obj\Debug\CertyficateManager.dll
-C:\dev\Ksef\CertyficateManager\obj\Debug\CertyficateManager.pdb

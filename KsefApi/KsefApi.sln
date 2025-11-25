@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KsefApi", "KsefApi.csproj", "{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KsefApi", "KsefApi\KsefApi.csproj", "{B91A64DC-27D8-41DA-A166-F9D8432AC7AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertyficateManager", "..\CertyficateManager\CertyficateManager.csproj", "{D0378405-8767-4A2D-B85B-0A08F3C66596}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertificateManager", "CertificateManager\CertificateManager.csproj", "{D0378405-8767-4A2D-B85B-0A08F3C66596}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestKsefFeatures", "..\TestKsefFeatures\TestKsefFeatures.csproj", "{2A91A8CD-1CFC-4438-9998-DF279CEE7B27}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestKsefFeatures", "TestKsefFeatures\TestKsefFeatures.csproj", "{2A91A8CD-1CFC-4438-9998-DF279CEE7B27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
