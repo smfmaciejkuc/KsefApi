@@ -2,7 +2,6 @@ using CertificateManager.Models.QRCode;
 using System;
 using System.Security.Cryptography.X509Certificates;
 
-
 namespace CertificateManager.Interfaces
 {
     public interface IVerificationLinkService
@@ -22,7 +21,8 @@ namespace CertificateManager.Interfaces
             string certificateSerial,
             string invoiceHash,
             X509Certificate2 signingCertificate,
-            string privateKey = ""
+            string privateKey = "",
+            string privateKeyPassword = ""
         );
     }
 }

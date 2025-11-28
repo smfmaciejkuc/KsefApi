@@ -16,5 +16,6 @@ namespace CertificateManager
         bool IsCertificateLoaded(string name);
         X509Certificate2 LoadCertificateFromFiles(string crtPath, string keyPath, string password);
         void RegisterCertificate(string name, X509Certificate2 cert, string password);
+        string ComputeUrlEncodedSignedSignature(string pathToSign, X509Certificate2 cert, string privateKey = "", string privateKeyPassword = "");
     }
 }

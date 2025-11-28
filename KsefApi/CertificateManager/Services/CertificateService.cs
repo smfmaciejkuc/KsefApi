@@ -1,10 +1,15 @@
-﻿using CertificateManager.Models;
+﻿using CertificateManager.Extensions;
+using CertificateManager.Models;
+using CertificateManager.Security;
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Pkcs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +18,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
-using CertificateManager.Security;
 
 namespace CertificateManager
 {
@@ -212,9 +216,98 @@ namespace CertificateManager
             return DecryptPassword(cert.EncryptedPassword, cert.AesKey, cert.AesIV);
         }
 
+        // Podpisuje ścieżkę zgodnie z wcześniejszym działającym schematem (RSA-PSS / ECDSA, pojedyncze hashowanie)
+        public string ComputeUrlEncodedSignedSignature(
+            string pathToSign,
+            X509Certificate2 cert,
+            string privateKey = "",
+            string privateKeyPassword = ""
+        )
+        {
+            byte[] dataBytes = Encoding.UTF8.GetBytes(pathToSign);
+
+            // Jeśli mamy jawny klucz prywatny PEM -> podpisz BouncyCastle
+            if (!string.IsNullOrEmpty(privateKey))
+            {
+                var bcKey = ParseBcPrivateKey(privateKey, privateKeyPassword);
+                var signatureBytes = SignDataWithBc(bcKey, dataBytes);
+                return signatureBytes.EncodeBase64UrlToString();
+            }
+
+            // W przeciwnym razie użyj klucza z certyfikatu (.NET)
+            var dotNetSignature = SignDataWithDotNet(cert, dataBytes);
+            if (dotNetSignature != null)
+                return dotNetSignature.EncodeBase64UrlToString();
+
+            throw new InvalidOperationException("Certyfikat nie posiada klucza prywatnego ani nie dostarczono privateKey.");
+        }
+
         // -------------------------
         // Private helpers (PEM parsing + PFX creation stubs)
         // -------------------------
+        private AsymmetricKeyParameter ParseBcPrivateKey(string pem, string password)
+        {
+            using (var reader = new StringReader(pem))
+            {
+                var pemReader = string.IsNullOrEmpty(password)
+                    ? new PemReader(reader)
+                    : new PemReader(reader, new Security.StaticPasswordFinder(password));
+                object obj = pemReader.ReadObject();
+                if (obj is AsymmetricCipherKeyPair kp)
+                    return kp.Private;
+                if (obj is AsymmetricKeyParameter akp)
+                    return akp;
+                throw new InvalidOperationException("Nieprawidłowy format klucza prywatnego (PEM).");
+            }
+        }
+
+        private byte[] SignDataWithBc(AsymmetricKeyParameter privateKey, byte[] data)
+        {
+            // RSA-PSS lub ECDSA, pojedyncze hashowanie SHA-256 zgodnie z dotychczasowym zachowaniem
+            if (privateKey is Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters ||
+                privateKey is Org.BouncyCastle.Crypto.Parameters.RsaKeyParameters)
+            {
+                var pss = new PssSigner(new RsaEngine(), new Sha256Digest(), 32);
+                pss.Init(true, privateKey);
+                pss.BlockUpdate(data, 0, data.Length);
+                return pss.GenerateSignature();
+            }
+            else
+            {
+                var ecdsaSigner = SignerUtilities.GetSigner("SHA256withECDSA");
+                ecdsaSigner.Init(true, privateKey);
+                ecdsaSigner.BlockUpdate(data, 0, data.Length);
+                return ecdsaSigner.GenerateSignature();
+            }
+        }
+
+        private byte[] SignDataWithDotNet(X509Certificate2 cert, byte[] data)
+        {
+            // RSA-PSS z pojedynczym SHA-256
+            var rsa = cert.GetRSAPrivateKey();
+            if (rsa != null)
+            {
+                using (var sha256 = SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(data);
+                    return rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
+                }
+            }
+
+            // ECDSA z pojedynczym SHA-256
+            var ecdsa = cert.GetECDsaPrivateKey();
+            if (ecdsa != null)
+            {
+                using (var sha256 = SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(data);
+                    return ecdsa.SignHash(hash);
+                }
+            }
+
+            return null;
+        }
+
         private byte[] LoadCertPemOrDer(string path)
         {
             var text = File.ReadAllText(path);

@@ -2,20 +2,19 @@ using CertificateManager.Extensions;
 using CertificateManager.Interfaces;
 using CertificateManager.Models.QRCode;
 using System;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace CertificateManager.Services
 {
     public class VerificationLinkService : IVerificationLinkService
     {
         private readonly string BaseUrl;
+        private readonly ICertificateService _certificateService;
 
-        public VerificationLinkService(string baseUrl)
+        public VerificationLinkService(string baseUrl, ICertificateService certificateService)
         {
             BaseUrl = $"{baseUrl}/client-app" ?? KsefEnvironmentUris.TEST;
+            _certificateService = certificateService;
         }
 
         public string BuildInvoiceVerificationUrl(string nip, DateTime issueDate, string invoiceHash)
@@ -33,88 +32,17 @@ namespace CertificateManager.Services
             string certificateSerial,
             string invoiceHash,
             X509Certificate2 signingCertificate,
-            string privateKey = ""
+            string privateKey = "",
+            string privateKeyPassword = ""
         )
         {
             byte[] bytes = Convert.FromBase64String(invoiceHash);
             string invoiceHashUrlEncoded = bytes.EncodeBase64UrlToString();
 
             string pathToSign = $"{BaseUrl}/certificate/{contextIdentifierType}/{contextIdentifierValue}/{sellerNip}/{certificateSerial}/{invoiceHashUrlEncoded}".Replace("https://", "");
-            string signedHash = ComputeUrlEncodedSignedHash(pathToSign, signingCertificate, privateKey);
+            string signedHash = _certificateService.ComputeUrlEncodedSignedSignature(pathToSign, signingCertificate, privateKey, privateKeyPassword);
 
             return $"{BaseUrl}/certificate/{contextIdentifierType}/{contextIdentifierValue}/{sellerNip}/{certificateSerial}/{invoiceHashUrlEncoded}/{signedHash}";
-        }
-
-        // Replace the DSASignatureFormat usage with the correct ECDsa signature format.
-        // The ECDsa.SignHash method expects a bool parameter for isDeterministic (in .NET 6+), or no parameter in earlier versions.
-        private static string ComputeUrlEncodedSignedHash(
-            string pathToSign, X509Certificate2 cert,
-            string privateKey = ""
-        )
-        {
-            // 1. SHA-256
-            byte[] sha;
-
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                sha = sha256.ComputeHash(Encoding.UTF8.GetBytes(pathToSign));
-            }
-
-            if (!string.IsNullOrEmpty(privateKey))
-            {
-                if (privateKey.StartsWith("-----"))
-                {
-                    privateKey = string.Concat(
-                        privateKey
-                            .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                            .Where(l => !l.StartsWith("-----"))
-                    );
-                }
-
-                byte[] privateKeyBytes = Convert.FromBase64String(privateKey);
-
-                // 1.1 Importujemy tylko, gdy certyfikat nie ma klucza prywatnego
-                if (!cert.HasPrivateKey)
-                {
-                    if (cert.GetRSAPublicKey() != null)
-                    {
-                        using (RSA rsaTemp = RSA.Create())
-                        {
-                            rsaTemp.ImportParameters(rsaTemp.ExportParameters(true));
-                            cert = cert.CopyWithPrivateKey(rsaTemp);
-                        }
-                    }
-                    else if (cert.GetECDsaPublicKey() != null)
-                    {
-                        using (ECDsa ecdsaTemp = ECDsa.Create())
-                        {
-                            ecdsaTemp.ImportParameters(ecdsaTemp.ExportParameters(true));
-                            cert = cert.CopyWithPrivateKey(ecdsaTemp);
-                        }
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Certyfikat nie wspiera RSA ani ECDSA.");
-                    }
-                }
-            }
-            // 2. Sign hash
-            byte[] signature;
-            if (cert.GetRSAPrivateKey() is RSA rsa)
-            {
-                signature = rsa.SignHash(sha, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
-            }
-            else if (cert.GetECDsaPrivateKey() is ECDsa ecdsa)
-            {
-                signature = ecdsa.SignHash(sha); // No DSASignatureFormat parameter
-            }
-            else
-            {
-                throw new InvalidOperationException("Certyfikat nie wspiera RSA ani ECDsa.");
-            }
-
-            // 3. Base64 + URL-encode            
-            return signature.EncodeBase64UrlToString();
         }
     }
 }
