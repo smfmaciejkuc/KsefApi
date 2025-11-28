@@ -1,3 +1,4 @@
+using CertificateManager.Extensions;
 using CertificateManager.Interfaces;
 using CertificateManager.Models.QRCode;
 using System;
@@ -14,7 +15,7 @@ namespace CertificateManager.Services
 
         public VerificationLinkService(string baseUrl)
         {
-            BaseUrl = $"{baseUrl}/client-app";
+            BaseUrl = $"{baseUrl}/client-app" ?? KsefEnvironmentUris.TEST;
         }
 
         public string BuildInvoiceVerificationUrl(string nip, DateTime issueDate, string invoiceHash)
@@ -114,16 +115,6 @@ namespace CertificateManager.Services
 
             // 3. Base64 + URL-encode            
             return signature.EncodeBase64UrlToString();
-        }
-    }
-    // Add this static helper class to your codebase (suggested file: ..\CertificateManager\Extensions\Base64UrlExtensions.cs)
-    public static class Base64UrlExtensions
-    {
-        public static string EncodeBase64UrlToString(this byte[] input)
-        {
-            string base64 = Convert.ToBase64String(input);
-            // Convert base64 to base64url
-            return base64.Replace("+", "-").Replace("/", "_").TrimEnd('=');
         }
     }
 }

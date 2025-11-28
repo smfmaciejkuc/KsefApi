@@ -6,7 +6,7 @@ namespace CertificateManager.Services
 {
     public class SignatureService
     {
-        public static byte[] SignWithThumbprint(string thumbprint, byte[] data, StoreLocation storeLocation = StoreLocation.LocalMachine)
+        public static byte[] SignWithThumbprint(string thumbprint, byte[] data, StoreLocation storeLocation = StoreLocation.CurrentUser)
         {
             using (var store = new X509Store(StoreName.My, storeLocation))
             {

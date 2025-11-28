@@ -22,4 +22,20 @@
     <Folder Include="Data\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CertificateManager\CertificateManager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\5323452439-50351e5a-ddec-4aee-a1d1-2166954e5a43-fa3.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\test_5323452439.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\test_5323452439.key">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
