@@ -27,6 +27,50 @@ namespace CertificateManager
             new Dictionary<string, RuntimeCert>(StringComparer.OrdinalIgnoreCase);
 
         // -------------------------
+        // Certificate Data Combination and Separation
+        // -------------------------
+
+        /// <summary>
+        /// Combines public certificate and private key into a single string
+        /// </summary>
+        public string CombineCertificateAndKey(string publicCertificate, string privateKey)
+        {
+            var certificateData = new CertificateData(publicCertificate, privateKey);
+            return certificateData.ToCombinedString();
+        }
+
+        /// <summary>
+        /// Separates combined certificate data into certificate and private key
+        /// </summary>
+        public CertificateData SeparateCertificateAndKey(string combinedData)
+        {
+            return CertificateData.FromCombinedString(combinedData);
+        }
+
+        /// <summary>
+        /// Extracts certificate information and metadata from X509Certificate2
+        /// </summary>
+        public CertificateInfo ExtractCertificateInfo(X509Certificate2 certificate)
+        {
+            return new CertificateInfo(certificate);
+        }
+
+        /// <summary>
+        /// Extracts certificate information from PEM string
+        /// </summary>
+        public CertificateInfo ExtractCertificateInfoFromPem(string certificatePem)
+        {
+            if (string.IsNullOrWhiteSpace(certificatePem))
+                throw new ArgumentException("Certificate PEM cannot be null or empty", nameof(certificatePem));
+
+            var certBytes = PemToDer(certificatePem, "CERTIFICATE");
+            using (var cert = new X509Certificate2(certBytes))
+            {
+                return new CertificateInfo(cert);
+            }
+        }
+
+        // -------------------------
         // Tworzenie certyfikatu z plików (KEY + CRT) -> X509Certificate2 (bez importu do Store)
         // -------------------------
         public X509Certificate2 CreateCertificateFromPem(string pathKeyPem, string pathCertPem, string pfxPassword,
@@ -251,7 +295,7 @@ namespace CertificateManager
             {
                 var pemReader = string.IsNullOrEmpty(password)
                     ? new PemReader(reader)
-                    : new PemReader(reader, new Security.StaticPasswordFinder(password));
+                    : new PemReader(reader, new StaticPasswordFinder(password));
                 object obj = pemReader.ReadObject();
                 if (obj is AsymmetricCipherKeyPair kp)
                     return kp.Private;

@@ -22,6 +22,30 @@ namespace TestKsefFeatures
         public bool IsCertificateLoaded(string name) => false;
         public X509Certificate2 LoadCertificateFromFiles(string crtPath, string keyPath, string password) => throw new NotImplementedException();
         public void RegisterCertificate(string name, X509Certificate2 cert, string password) { }
+        
+        // New methods implementations - now use proper PEM concatenation
+        public string CombineCertificateAndKey(string publicCertificate, string privateKey)
+        {
+            var certificateData = new CertificateData(publicCertificate, privateKey);
+            return certificateData.ToCombinedString();
+        }
+
+        public CertificateData SeparateCertificateAndKey(string combinedData)
+        {
+            return CertificateData.FromCombinedString(combinedData);
+        }
+
+        public CertificateInfo ExtractCertificateInfo(X509Certificate2 certificate)
+        {
+            return new CertificateInfo(certificate);
+        }
+
+        public CertificateInfo ExtractCertificateInfoFromPem(string certificatePem)
+        {
+            // For testing, return a mock certificate info
+            return new CertificateInfo(new X509Certificate2());
+        }
+        
         public string ComputeUrlEncodedSignedSignature(string pathToSign, X509Certificate2 cert, string privateKey = "", string privateKeyPassword = "")
         {
             // Zwracamy deterministyczny podpis (base64url) z sha256(pathToSign)

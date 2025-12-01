@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Certificate Demo",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/TestKsefFeatures/bin/Debug/net9.0/TestKsefFeatures.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/TestKsefFeatures",
+            "console": "integratedTerminal",
+            "stopAtEntry": false,
+            "justMyCode": true
+        },
+        {
+            "name": "Run Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "dotnet",
+            "args": ["test", "TestKsefFeatures/TestKsefFeatures.csproj"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
+    ]
+}

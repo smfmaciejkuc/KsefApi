@@ -17,5 +17,11 @@ namespace CertificateManager
         X509Certificate2 LoadCertificateFromFiles(string crtPath, string keyPath, string password);
         void RegisterCertificate(string name, X509Certificate2 cert, string password);
         string ComputeUrlEncodedSignedSignature(string pathToSign, X509Certificate2 cert, string privateKey = "", string privateKeyPassword = "");
+
+        // New methods for combining and separating certificate data
+        string CombineCertificateAndKey(string publicCertificate, string privateKey);
+        CertificateData SeparateCertificateAndKey(string combinedData);
+        CertificateInfo ExtractCertificateInfo(X509Certificate2 certificate);
+        CertificateInfo ExtractCertificateInfoFromPem(string certificatePem);
     }
 }
