@@ -13,5 +13,12 @@ namespace CertificateManager.Services
                 return Convert.ToBase64String(hash);
             }
         }
+        public static byte[] GetByteHashData(byte[] file)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                return sha256.ComputeHash(file);
+            }
+        }
     }
 }

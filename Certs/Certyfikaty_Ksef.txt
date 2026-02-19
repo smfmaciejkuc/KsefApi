@@ -5,6 +5,14 @@ https://ksef-test.mf.gov.pl/client-app/invoice/6637651024/21-11-2025/03LA0CAXAdj
 testowe środowisko:
 https://web2te-ksef.mf.gov.pl/web/certificates/generate-internal-certificate
 
+https://www.gov.pl/web/finanse/zmiana-adresow-srodowisk-ksef--komunikat-dla-integratorow
+
+
 certyfikaty:
 firma nip: 5323452439	typ: qrcode	nr_seryjny:01928D544943FB98	nazwa: test_5323452439	hasło:Certyfikat_5323452439
 firma nip: 5323452439	typ: auth	nr_seryjny:01C6F62116B5E277	nazwa: auth_5323452439	hasło:Certyfikat_5323452439
+
+firma nip: 1086535100	typ: qrcode	nr_seryjny:01928D544943FB98	nazwa: 1086535100	hasło:Certyfikat_1086535100
+
+firma nip: 1086535100	typ: qrcode	nr_seryjny:01928D544943FB98	nazwa: Expired_1086535100	hasło:Expired_1086535100
+

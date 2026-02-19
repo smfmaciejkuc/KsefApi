@@ -23,7 +23,7 @@ namespace TestKsefFeatures
         {
             var svc = new CertificateService();
             Assert.Throws<System.ArgumentException>(new Action(() =>
-                svc.CreateCertificateFromPem("not_exists.key", "not_exists.crt", "pwd")));
+                svc.CreateCertificateFromFile("not_exists.key", "not_exists.crt", "pwd")));
         }
 
         [Fact]

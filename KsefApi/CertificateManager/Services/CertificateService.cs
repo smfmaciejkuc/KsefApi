@@ -1,6 +1,7 @@
 ﻿using CertificateManager.Extensions;
 using CertificateManager.Models;
 using CertificateManager.Security;
+using CertificateManager.Services;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
@@ -73,14 +74,22 @@ namespace CertificateManager
         // -------------------------
         // Tworzenie certyfikatu z plików (KEY + CRT) -> X509Certificate2 (bez importu do Store)
         // -------------------------
-        public X509Certificate2 CreateCertificateFromPem(string pathKeyPem, string pathCertPem, string pfxPassword,
-            bool nonExportable = true, StoreLocation storeLocation = StoreLocation.CurrentUser)
+        public X509Certificate2 CreateCertificateFromFile(string keyPath, string crtPath, string pfxPassword, bool nonExportable = false, StoreLocation storeLocation = StoreLocation.CurrentUser)
         {
-            if (!File.Exists(pathKeyPem)) throw new FileNotFoundException(nameof(pathKeyPem));
-            if (!File.Exists(pathCertPem)) throw new FileNotFoundException(nameof(pathCertPem));
+            if (!File.Exists(keyPath)) throw new FileNotFoundException(nameof(keyPath));
+            if (!File.Exists(crtPath)) throw new FileNotFoundException(nameof(crtPath));
 
+            var crtPem = File.ReadAllText(crtPath);
+            var keyPem = File.ReadAllText(keyPath);
+
+            return CreateCertificateFromPem(keyPem, crtPem, pfxPassword, nonExportable, storeLocation);
+        }            
+
+        public X509Certificate2 CreateCertificateFromPem(string keyPemContent, string certPemContent, string pfxPassword,
+            bool nonExportable, StoreLocation storeLocation)
+        {
             AsymmetricKeyParameter privateKey;
-            using (var reader = File.OpenText(pathKeyPem))
+            using (var reader = new StringReader(keyPemContent))
             {
                 var passwordFinder = new StaticPasswordFinder(pfxPassword);
                 var pemReader = new PemReader(reader, passwordFinder);
@@ -95,7 +104,7 @@ namespace CertificateManager
             }
 
             X509Certificate bcCert;
-            using (var reader = File.OpenText(pathCertPem))
+            using (var reader = new StringReader(certPemContent))
             {
                 var pemReader = new PemReader(reader);
                 var obj = pemReader.ReadObject();
@@ -151,7 +160,7 @@ namespace CertificateManager
         public string ImportPemKeyAndCertToStore(string pathKeyPem, string pathCertPem, string pfxPassword,
             StoreLocation storeLocation = StoreLocation.CurrentUser, bool nonExportable = true)
         {
-            var cert = CreateCertificateFromPem(pathKeyPem, pathCertPem, pfxPassword, nonExportable, storeLocation);
+            var cert = CreateCertificateFromFile(pathKeyPem, pathCertPem, pfxPassword, nonExportable, storeLocation);
             return ImportCertificateToStore(cert, storeLocation);
         }
 
@@ -204,17 +213,6 @@ namespace CertificateManager
                 var pfxBytes = CreatePfx(certBytes, keyBytes);
                 return new X509Certificate2(pfxBytes, (string)null, X509KeyStorageFlags.Exportable);
             }
-        }
-
-        // -------------------------
-        // Tworzenie cert z zawartości PEM w stringach (certPem + keyPem) z hasłem do klucza prywatnego
-        // -------------------------
-        public X509Certificate2 CreateCertificateFromPem(string certPem, string keyPem, string privateKeyPassword)
-        {
-            var certBytes = PemToDer(certPem, "CERTIFICATE");
-            var keyBytes = PemToDer(keyPem, "PRIVATE KEY");
-            var pfxBytes = CreatePfx(certBytes, keyBytes, privateKeyPassword ?? "");
-            return new X509Certificate2(pfxBytes, (string)null, X509KeyStorageFlags.Exportable);
         }
 
         // -------------------------
@@ -287,6 +285,28 @@ namespace CertificateManager
         }
 
         // -------------------------
+        // PEM/DER conversion utility
+        // -------------------------
+        
+        /// <summary>
+        /// Converts PEM format data to DER format bytes
+        /// </summary>
+        /// <param name="pem">PEM formatted string</param>
+        /// <param name="section">PEM section name (e.g., "CERTIFICATE", "PRIVATE KEY")</param>
+        /// <returns>DER format bytes</returns>
+        public byte[] PemToDer(string pem, string section)
+        {
+            var header = $"-----BEGIN {section}-----";
+            var footer = $"-----END {section}-----";
+            var start = pem.IndexOf(header, System.StringComparison.Ordinal);
+            var end = pem.IndexOf(footer, System.StringComparison.Ordinal);
+            if (start < 0 || end < 0) throw new ArgumentException($"Invalid PEM format for section '{section}'");
+            var base64 = pem.Substring(start + header.Length, end - (start + header.Length))
+                .Replace("\r", "").Replace("\n", "").Replace(" ", "");
+            return Convert.FromBase64String(base64);
+        }
+
+        // -------------------------
         // Private helpers (PEM parsing + PFX creation stubs)
         // -------------------------
         private AsymmetricKeyParameter ParseBcPrivateKey(string pem, string password)
@@ -331,11 +351,11 @@ namespace CertificateManager
             var rsa = cert.GetRSAPrivateKey();
             if (rsa != null)
             {
-                using (var sha256 = SHA256.Create())
-                {
-                    var hash = sha256.ComputeHash(data);
-                    return rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
-                }
+                //using (var sha256 = SHA256.Create())
+                //{
+                //    var hash = sha256.ComputeHash(data);
+                    return rsa.SignHash(CryptographyService.GetByteHashData(data), HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
+                //}
             }
 
             // ECDSA z pojedynczym SHA-256
@@ -343,10 +363,10 @@ namespace CertificateManager
             if (ecdsa != null)
             {
                 using (var sha256 = SHA256.Create())
-                {
-                    var hash = sha256.ComputeHash(data);
-                    return ecdsa.SignHash(hash);
-                }
+                //{
+                //    var hash = sha256.ComputeHash(data);
+                    return ecdsa.SignHash(CryptographyService.GetByteHashData(data));
+                //}
             }
 
             return null;
@@ -366,17 +386,6 @@ namespace CertificateManager
                 return Convert.FromBase64String(base64);
             }
             return File.ReadAllBytes(path);
-        }
-
-        private byte[] PemToDer(string pem, string section)
-        {
-            var header = $"-----BEGIN {section}-----";
-            var footer = $"-----END {section}-----";
-            var start = pem.IndexOf(header, System.StringComparison.Ordinal);
-            var end = pem.IndexOf(footer, System.StringComparison.Ordinal);
-            if (start < 0 || end < 0) throw new ArgumentException("Invalid PEM format");
-            var base64 = pem.Substring(start + header.Length, end - (start + header.Length)).Replace("\r", "").Replace("\n", "");
-            return Convert.FromBase64String(base64);
         }
 
         private byte[] CreatePfx(byte[] certBytes, byte[] keyBytes, string privateKeyPassword = "")

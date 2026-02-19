@@ -13,7 +13,7 @@ namespace CertificateManager.Services
 
         public VerificationLinkService(string baseUrl, ICertificateService certificateService)
         {
-            BaseUrl = $"{baseUrl}/client-app" ?? KsefEnvironmentUris.TEST;
+            BaseUrl = baseUrl ?? KsefEnvironmentUris.TEST;
             _certificateService = certificateService;
         }
 

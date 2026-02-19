@@ -2,8 +2,8 @@
 {
     public static class KsefEnvironmentUris
     {
-        public const string TEST = "https://ksef-test.mf.gov.pl";
-        public const string DEMO = "https://ksef-demo.mf.gov.pl";
-        public const string PRODUCTION = "https://ksef.mf.gov.pl";
+        public const string TEST = "https://qr-test.ksef.mf.gov.pl";
+        public const string DEMO = "https://qr-demo.ksef.mf.gov.pl";
+        public const string PRODUCTION = "https://qr.ksef.mf.gov.pl";
     }
 }

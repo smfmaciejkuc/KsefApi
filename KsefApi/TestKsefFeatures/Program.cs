@@ -39,9 +39,10 @@ namespace TestKsefFeatures
                 Console.WriteLine("2. Test PEM Boundary Detection");
                 Console.WriteLine("3. Test Different Key Formats");
                 Console.WriteLine("4. Test Messy Data Handling");
-                Console.WriteLine("5. Show Help");
+                Console.WriteLine("5. Run CertificateData E2E Test");
+                Console.WriteLine("6. Show Help");
                 Console.WriteLine("0. Exit");
-                Console.Write("\nEnter your choice (0-5): ");
+                Console.Write("\nEnter your choice (0-6): ");
 
                 string input = Console.ReadLine();
 
@@ -62,6 +63,9 @@ namespace TestKsefFeatures
                             TestMessyDataHandling();
                             break;
                         case "5":
+                            RunCertificateDataE2ETest();
+                            break;
+                        case "6":
                             ShowHelp();
                             break;
                         case "0":
@@ -103,6 +107,80 @@ namespace TestKsefFeatures
             catch (Exception ex)
             {
                 Console.WriteLine($"\n? Error during demo execution: {ex.Message}");
+            }
+        }
+
+        private static void RunCertificateDataE2ETest()
+        {
+            Console.Clear();
+            Console.WriteLine("=== Running CertificateData E2E Test ===\n");
+            
+            Console.WriteLine("This will run the comprehensive E2E test that:");
+            Console.WriteLine("• Loads certificate and key files");
+            Console.WriteLine("• Creates CertificateData object");
+            Console.WriteLine("• Saves combined data to file");
+            Console.WriteLine("• Generates verification links");
+            Console.WriteLine("• Creates QR codes for invoice and certificate");
+            Console.WriteLine("");
+            
+            Console.Write("Do you want to continue? (y/n): ");
+            string response = Console.ReadLine();
+            
+            if (response?.ToLower().StartsWith("y") == true)
+            {
+                Console.WriteLine("\nStarting E2E test execution...\n");
+                
+                try
+                {
+                    // Run the E2E test using dotnet test command
+                    var processStartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "dotnet",
+                        Arguments = "test --configuration Release --logger \"console;verbosity=detailed\" --filter \"FullyQualifiedName~GenerateVerificationLinks_WithCertificateData_EndToEnd_Succeeds\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    };
+
+                    using (var process = System.Diagnostics.Process.Start(processStartInfo))
+                    {
+                        string output = process.StandardOutput.ReadToEnd();
+                        string error = process.StandardError.ReadToEnd();
+                        
+                        process.WaitForExit();
+                        
+                        Console.WriteLine(output);
+                        if (!string.IsNullOrWhiteSpace(error))
+                        {
+                            Console.WriteLine("Errors:");
+                            Console.WriteLine(error);
+                        }
+                        
+                        if (process.ExitCode == 0)
+                        {
+                            Console.WriteLine("\n? E2E test completed successfully!");
+                            Console.WriteLine("\nGenerated files in Data directory:");
+                            Console.WriteLine("• combined_certificate_data.pem");
+                            Console.WriteLine("• certificatedata_invoice_qr.png");
+                            Console.WriteLine("• certificatedata_certificate_qr.png");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"\n? E2E test failed with exit code: {process.ExitCode}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"\n? Error running E2E test: {ex.Message}");
+                    Console.WriteLine("\nAlternatively, you can run the test manually with:");
+                    Console.WriteLine("dotnet test --filter \"FullyQualifiedName~GenerateVerificationLinks_WithCertificateData_EndToEnd_Succeeds\"");
+                }
+            }
+            else
+            {
+                Console.WriteLine("E2E test cancelled.");
             }
         }
 
@@ -243,15 +321,22 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJT
             Console.WriteLine("2. Multiple Key Formats - Supports PKCS#8, PKCS#1 RSA, SEC1 EC");
             Console.WriteLine("3. Data Validation - Built-in methods to validate PEM content");
             Console.WriteLine("4. Messy Data Handling - Extracts PEM blocks from complex input");
-            Console.WriteLine("5. Round-trip Safety - Guarantees data integrity through combine/separate cycles\n");
+            Console.WriteLine("5. Round-trip Safety - Guarantees data integrity through combine/separate cycles");
+            Console.WriteLine("6. E2E Integration - Full workflow with QR code generation\n");
             
             Console.WriteLine("Command Line Options:");
             Console.WriteLine("• Run with --auto flag for automated full demo");
             Console.WriteLine("• dotnet run --project TestKsefFeatures.csproj -- --auto\n");
             
+            Console.WriteLine("E2E Test:");
+            Console.WriteLine("• Option 5 runs a comprehensive test with real certificate files");
+            Console.WriteLine("• Generates combined data file and QR codes");
+            Console.WriteLine("• Demonstrates complete KSeF verification workflow\n");
+            
             Console.WriteLine("For more information, see:");
             Console.WriteLine("• CertificateManager/README_NewFeatures.md");
             Console.WriteLine("• TestKsefFeatures/README-Demo.md");
+            Console.WriteLine("• TestKsefFeatures/CertificateData-E2E-README.md");
         }
 
         private static void RunInteractiveDemo()

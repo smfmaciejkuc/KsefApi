@@ -6,8 +6,8 @@ namespace CertificateManager
     public interface ICertificateService
     {
         X509Certificate2 CreateCertificateFromPem(string certPem, string keyPem);
-        X509Certificate2 CreateCertificateFromPem(string certPem, string keyPem, string privateKeyPassword);
-        X509Certificate2 CreateCertificateFromPem(string pathKeyPem, string pathCertPem, string pfxPassword, bool nonExportable = true, StoreLocation storeLocation = StoreLocation.CurrentUser);
+        X509Certificate2 CreateCertificateFromFile(string pathKeyPem, string pathCertPem, string pfxPassword, bool nonExportable = false, StoreLocation storeLocation = StoreLocation.CurrentUser);
+        X509Certificate2 CreateCertificateFromPem(string certPem, string keyPem, string privateKeyPassword, bool nonExportable, StoreLocation storeLocation);
         X509Certificate2 FindExistingCertificate(string pathCert, StoreLocation storeLocation = StoreLocation.LocalMachine);
         RuntimeCert GetCertificate(string name);
         string GetCertificatePassword(string name);
@@ -23,5 +23,8 @@ namespace CertificateManager
         CertificateData SeparateCertificateAndKey(string combinedData);
         CertificateInfo ExtractCertificateInfo(X509Certificate2 certificate);
         CertificateInfo ExtractCertificateInfoFromPem(string certificatePem);
+        
+        // PEM/DER conversion utility
+        byte[] PemToDer(string pem, string section);
     }
 }
